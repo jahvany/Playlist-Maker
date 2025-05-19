@@ -1,41 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#3772E7"
+    android:background="@color/blue"
     tools:context=".MainActivity"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingBottom="28dp"
     >
 
-
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/titleMain"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="1dp"
-        tools:ignore="MissingConstraints"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="28dp">
+        android:layout_height="56dp"
+        android:background="@color/blue"
+        android:layout_marginBottom="24dp"
+        android:title="@string/app_name"
+        app:titleTextAppearance="@style/titleStyle"
+        app:contentInsetStart="0dp"/>
 
-        <TextView
-                android:id="@+id/textView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Playlist marker"
-                android:textColor="@color/white"
-                android:textSize="22sp"
-                android:paddingTop="14dp"
-            android:paddingBottom="40dp"/>
-
-        <Button
+    <Button
             android:id="@+id/search"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:text="Поиск"
+            android:text="@string/search"
             android:textSize="26sp"
             android:backgroundTint="@color/white"
             android:textColor="@color/black"
@@ -51,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:text="Медиатека"
+            android:text="@string/media"
             android:textSize="26sp"
             android:backgroundTint="@color/white"
             android:textColor="@color/black"
@@ -68,7 +60,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:text="Настройки"
+            android:text="@string/settings"
             android:textSize="26sp"
             android:backgroundTint="@color/white"
             android:textColor="@color/black"
@@ -79,5 +71,4 @@
             app:iconTint="@color/black"
             app:iconPadding="8dp"
             android:foreground="?attr/selectableItemBackground"/>
-    </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
