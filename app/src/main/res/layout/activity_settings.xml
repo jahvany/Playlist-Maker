@@ -13,7 +13,7 @@
         android:id="@+id/titleSettings"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:title="@string/settings"
+        app:title="@string/settings"
         app:navigationIcon="@drawable/arrowback"
         app:titleTextColor="@color/black"
         app:titleTextAppearance="@style/titleSettingsStyle" />

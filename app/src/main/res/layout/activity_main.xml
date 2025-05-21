@@ -18,7 +18,8 @@
         android:layout_height="56dp"
         android:background="@color/blue"
         android:layout_marginBottom="24dp"
-        android:title="@string/app_name"
+        app:title="@string/app_name"
+        app:titleTextColor="@color/white"
         app:titleTextAppearance="@style/titleStyle"
         app:contentInsetStart="0dp"/>
 
