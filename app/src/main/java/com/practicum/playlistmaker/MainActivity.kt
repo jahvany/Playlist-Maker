@@ -20,12 +20,9 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(titleMain)
 
         val buttonSearch = findViewById<Button>(R.id.search)
-        val buttonClickListener: View.OnClickListener = object : View.OnClickListener {
-            override fun onClick(v: View?) {
-                startActivity(Intent(this@MainActivity, SearchActivity::class.java))
-            }
+        buttonSearch.setOnClickListener {
+                startActivity(Intent(this, SearchActivity::class.java))
         }
-        buttonSearch.setOnClickListener(buttonClickListener)
 
         val buttonMedia = findViewById<Button>(R.id.media)
         buttonMedia.setOnClickListener {
