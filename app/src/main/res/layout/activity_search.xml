@@ -1,6 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/search"
+    style="@style/activityLL">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/titleSearch"
+        app:title="@string/search"
+        style="@style/titleToolbar"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="8dp"
+        android:background="@drawable/edit_text_background">
+        <ImageView
+            android:id="@+id/lupa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:src="@drawable/lupa"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="4dp"/>
+        <EditText
+            android:id="@+id/inputEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:background="@drawable/edit_text_background"
+            android:hint="@string/search"
+            android:inputType="text"
+            android:maxLength="30"
+            android:maxLines="1"
+            android:paddingTop="10.5dp"
+            android:textColor="@color/black"
+            android:textColorHint="?attr/colorPrimaryVariant"
+            android:textSize="16sp"
+            android:fontFamily="@font/ys_display_regular"
+            android:textFontWeight="400"
+            />
+        <ImageView
+            android:id="@+id/clearIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:src="@drawable/clear"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:paddingEnd="14dp"
+            android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>
