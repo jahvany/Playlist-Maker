@@ -41,23 +41,23 @@ class SettingActivity : AppCompatActivity() {
             recreate()
         }
 
-        val shareMessage = "https://practicum.yandex.ru/profile/android-developer-plus"
+        val shareMessage = getString(R.string.messageAddress)
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, shareMessage)
         }
 
-        val supportSubject = "Сообщение разработчикам и разработчицам приложения Playlist Maker"
-        val supportMessage = "Спасибо разработчикам и разработчицам за крутое приложение!"
+        val supportSubject = getString(R.string.supportSubject)
+        val supportMessage = getString(R.string.supportMessage)
         val supportIntent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
-            putExtra(Intent.EXTRA_EMAIL, arrayOf("jarman@bk.ru"))
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.myAddress)))
             putExtra(Intent.EXTRA_SUBJECT, supportSubject)
             putExtra(Intent.EXTRA_TEXT, supportMessage )
         }
 
         val agreementIntent = Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse("https://yandex.ru/legal/practicum_offer/")
+            data = Uri.parse(getString(R.string.webSite))
         }
 
         val shareButton = findViewById<MaterialTextView>(R.id.shareButton)
