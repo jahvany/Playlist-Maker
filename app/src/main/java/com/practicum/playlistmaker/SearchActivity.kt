@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.recyclerview.widget.RecyclerView
@@ -61,7 +60,7 @@ class SearchActivity: AppCompatActivity() {
         textForSave = savedInstanceState.getString("SAVED_TEXT", "")
     }
 
-    val trackList : ArrayList<Track> = arrayListOf(
+    val trackList : MutableList<Track> = mutableListOf(
         Track("Smells Like Teen Spirit",
             "Nirvana",
             "5:01",
