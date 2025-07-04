@@ -12,7 +12,6 @@
         <item name="colorSecondary">@color/blue</item>
         <item name="colorSecondaryVariant">@color/lightGrey</item>
         <item name="colorOnSecondary">@color/grey</item>
-
         <!-- Фон для Toolbar (по умолчанию) -->
         <item name="toolbarStyle">@style/Widget.MaterialComponents.Toolbar.Primary</item>
     </style>

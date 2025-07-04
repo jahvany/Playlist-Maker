@@ -4,8 +4,10 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
@@ -17,7 +19,7 @@ class SettingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
 
         val titleSettings = findViewById<MaterialToolbar>(R.id.titleSettings)
-        titleSettings.setNavigationOnClickListener {finish()}
+        titleSettings.setNavigationOnClickListener { finish() }
 
         val themeSwitch = findViewById<SwitchMaterial>(R.id.themeSwitch)
         val isDark = when (AppCompatDelegate.getDefaultNightMode()) {
@@ -28,6 +30,7 @@ class SettingActivity : AppCompatActivity() {
                 val uiMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
                 uiMode == Configuration.UI_MODE_NIGHT_YES
             }
+
             else -> false
         }
         themeSwitch.isChecked = isDark
@@ -53,7 +56,7 @@ class SettingActivity : AppCompatActivity() {
             data = Uri.parse("mailto:")
             putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.myAddress)))
             putExtra(Intent.EXTRA_SUBJECT, supportSubject)
-            putExtra(Intent.EXTRA_TEXT, supportMessage )
+            putExtra(Intent.EXTRA_TEXT, supportMessage)
         }
 
         val agreementIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -61,12 +64,14 @@ class SettingActivity : AppCompatActivity() {
         }
 
         val shareButton = findViewById<MaterialTextView>(R.id.shareButton)
-        shareButton.setOnClickListener {startActivity(shareIntent)}
+        shareButton.setOnClickListener { startActivity(shareIntent) }
 
         val supportButton = findViewById<MaterialTextView>(R.id.supportButton)
-        supportButton.setOnClickListener {startActivity(supportIntent)}
+        supportButton.setOnClickListener { startActivity(supportIntent) }
 
         val agreementButton = findViewById<MaterialTextView>(R.id.agreementButton)
-        agreementButton.setOnClickListener {startActivity(agreementIntent)}
+        agreementButton.setOnClickListener { startActivity(agreementIntent) }
     }
+
 }
+
