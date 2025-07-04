@@ -12,4 +12,6 @@
     <string name="supportMessage">Спасибо разработчикам и разработчицам за крутое приложение!</string>
     <string name="myAddress">jarman@bk.ru</string>
     <string name="webSite">https://yandex.ru/legal/practicum_offer/</string>
+    <string name="searchNothing">Ничего не нашлось</string>
+    <string name="searchError">Проблемы со связью\n\nЗагрузка не удалась. Проверьте подключение к интернету</string>
 </resources>
