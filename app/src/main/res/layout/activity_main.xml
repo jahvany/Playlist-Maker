@@ -25,8 +25,8 @@
         android:elevation="0dp"/>
 
         <Button
-            android:id="@+id/search" style="@style/mainButtonStyle"
-            android:layout_width="match_parent"
+            android:id="@+id/search"
+            style="@style/mainButtonStyle"
             android:text="@string/search"
             app:icon="@drawable/search"/>
 
