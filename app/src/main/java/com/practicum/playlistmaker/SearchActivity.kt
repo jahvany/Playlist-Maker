@@ -33,6 +33,7 @@ class SearchActivity : AppCompatActivity() {
         val inputEditText = findViewById<EditText>(R.id.inputEditText)
         val clearButton = findViewById<ImageView>(R.id.clearIcon)
         clearButton.setOnClickListener {
+            trackAdapter.updateTracks(emptyList())
             inputEditText.setText("")
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(inputEditText.windowToken, 0)
@@ -68,24 +69,24 @@ class SearchActivity : AppCompatActivity() {
 
         erroreImage = findViewById(R.id.erroreImage)
         erroreText = findViewById(R.id.erroreText)
-        updateButtom = findViewById(R.id.update)
+        updateButton = findViewById(R.id.update)
 
-        updateButtom.setOnClickListener {
+        updateButton.setOnClickListener {
             showTracks(inputEditText.text.toString())
         }
     }
 
     private lateinit var erroreImage: ImageView
     private lateinit var erroreText: TextView
-    private lateinit var updateButtom: Button
+    private lateinit var updateButton: Button
 
-    var trackList = listOf<Track>()
-    val trackAdapter = TrackAdapter(trackList)
-    val retrofit = Retrofit.Builder()
+    private var trackList = listOf<Track>()
+    private val trackAdapter = TrackAdapter(trackList)
+    private val retrofit = Retrofit.Builder()
         .baseUrl("https://itunes.apple.com/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-    val iTunesApiService = retrofit.create(iTunesApi::class.java)
+    private val iTunesApiService = retrofit.create(iTunesApi::class.java)
 
     var textForSave = ""
 
@@ -109,7 +110,7 @@ class SearchActivity : AppCompatActivity() {
                     val tracks = response.body()?.results ?: emptyList()
                     trackList = tracks
                     trackAdapter.updateTracks(tracks)
-                    updateButtom.visibility = View.GONE
+                    updateButton.visibility = View.GONE
                     if (tracks.isEmpty()) {
                         erroreImage.setImageResource(R.drawable.nothing)
                         erroreText.setText(R.string.searchNothing)
@@ -123,11 +124,12 @@ class SearchActivity : AppCompatActivity() {
                     }
                 }
                 override fun onFailure(call: Call<iTunesResponse>, t: Throwable) {
+                    trackAdapter.updateTracks(emptyList())
                     erroreImage.setImageResource(R.drawable.error)
                     erroreText.setText(R.string.searchError)
                     erroreImage.visibility = View.VISIBLE
                     erroreText.visibility = View.VISIBLE
-                    updateButtom.visibility = View.VISIBLE
+                    updateButton.visibility = View.VISIBLE
                 }
             }
             )
