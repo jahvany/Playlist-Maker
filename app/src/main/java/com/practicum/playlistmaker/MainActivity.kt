@@ -31,6 +31,10 @@ class MainActivity : AppCompatActivity() {
         val buttonSettings = findViewById<Button>(R.id.settings)
         buttonSettings.setOnClickListener {
             startActivity(Intent(this, SettingActivity::class.java))
+
         }
+        val sharedPreferences = getSharedPreferences("SharedPreferences", MODE_PRIVATE)
+        (applicationContext as App).switchTheme(sharedPreferences.getBoolean("theme", null == false))
     }
+
 }
