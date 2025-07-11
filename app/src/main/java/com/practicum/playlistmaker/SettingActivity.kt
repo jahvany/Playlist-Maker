@@ -23,17 +23,11 @@ class SettingActivity : AppCompatActivity() {
 
         val themeSwitch = findViewById<SwitchMaterial>(R.id.themeSwitch)
 
-        val sharedPreferences = getSharedPreferences("SharedPreferences", MODE_PRIVATE)
-
-        themeSwitch.isChecked = sharedPreferences.getBoolean("theme", null == false)
+        themeSwitch.isChecked = (applicationContext as App).darkTheme
 
         themeSwitch.setOnCheckedChangeListener { switcher, checked ->
             (applicationContext as App).switchTheme(checked)
             }
-
-        sharedPreferences.edit()
-            .putBoolean("theme",(applicationContext as App).darkTheme)
-            .apply()
 
         val shareMessage = getString(R.string.messageAddress)
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
@@ -63,8 +57,5 @@ class SettingActivity : AppCompatActivity() {
         val agreementButton = findViewById<MaterialTextView>(R.id.agreementButton)
         agreementButton.setOnClickListener { startActivity(agreementIntent) }
     }
-
-
-
 }
 

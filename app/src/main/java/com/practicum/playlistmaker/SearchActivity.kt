@@ -23,6 +23,12 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class SearchActivity : AppCompatActivity() {
+
+    companion object {
+        const val PREFS_NAME = "History"
+        const val KEY_TRACK = "SearchHistory"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -65,23 +71,13 @@ class SearchActivity : AppCompatActivity() {
         inputEditText.addTextChangedListener(simpleTextWatcher)
         inputEditText.setText(textForSave)
 
-        val sharedPreferences = getSharedPreferences("History", MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         tracksHistory = Gson()
             .fromJson(sharedPreferences
-                .getString("searchHistory", null), Array<Track>::class.java)
+                .getString(KEY_TRACK, null), Array<Track>::class.java)
             ?.toMutableList() ?: mutableListOf()
 
-        val onTrackClickListener = object : onTrackClickListener {
-            override fun onTrackClick(track: Track) {
-                if (track in tracksHistory) {
-                    tracksHistory.remove(track)
-                    tracksHistory.add(0, track)
-                } else {
-                    tracksHistory.add(0, track)
-                    if (tracksHistory.size == 11) tracksHistory.removeAt(10)
-                }
-            }
-        }
+        val onTrackClickListener = onTrackClickListener(tracksHistory)
 
         val textHistory = findViewById<TextView>(R.id.textHistory)
 
@@ -125,9 +121,9 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        val sharedPreferences = getSharedPreferences("History", MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         sharedPreferences.edit()
-            .putString("searchHistory", Gson().toJson(tracksHistory))
+            .putString(KEY_TRACK, Gson().toJson(tracksHistory))
             .apply()
     }
 

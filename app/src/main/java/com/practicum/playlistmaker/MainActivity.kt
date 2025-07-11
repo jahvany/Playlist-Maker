@@ -33,8 +33,5 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SettingActivity::class.java))
 
         }
-        val sharedPreferences = getSharedPreferences("SharedPreferences", MODE_PRIVATE)
-        (applicationContext as App).switchTheme(sharedPreferences.getBoolean("theme", null == false))
     }
-
 }
