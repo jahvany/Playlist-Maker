@@ -22,27 +22,12 @@ class SettingActivity : AppCompatActivity() {
         titleSettings.setNavigationOnClickListener { finish() }
 
         val themeSwitch = findViewById<SwitchMaterial>(R.id.themeSwitch)
-        val isDark = when (AppCompatDelegate.getDefaultNightMode()) {
-            AppCompatDelegate.MODE_NIGHT_YES -> true
-            AppCompatDelegate.MODE_NIGHT_NO -> false
-            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM,
-            AppCompatDelegate.MODE_NIGHT_UNSPECIFIED -> {
-                val uiMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-                uiMode == Configuration.UI_MODE_NIGHT_YES
-            }
 
-            else -> false
-        }
-        themeSwitch.isChecked = isDark
-        themeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            AppCompatDelegate.setDefaultNightMode(
-                if (isChecked)
-                    AppCompatDelegate.MODE_NIGHT_YES
-                else
-                    AppCompatDelegate.MODE_NIGHT_NO
-            )
-            recreate()
-        }
+        themeSwitch.isChecked = (applicationContext as App).darkTheme
+
+        themeSwitch.setOnCheckedChangeListener { switcher, checked ->
+            (applicationContext as App).switchTheme(checked)
+            }
 
         val shareMessage = getString(R.string.messageAddress)
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
@@ -72,6 +57,5 @@ class SettingActivity : AppCompatActivity() {
         val agreementButton = findViewById<MaterialTextView>(R.id.agreementButton)
         agreementButton.setOnClickListener { startActivity(agreementIntent) }
     }
-
 }
 
