@@ -15,6 +15,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -22,6 +23,12 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class SearchActivity : AppCompatActivity() {
+
+    companion object {
+        const val PREFS_NAME = "History"
+        const val KEY_TRACK = "SearchHistory"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -64,6 +71,42 @@ class SearchActivity : AppCompatActivity() {
         inputEditText.addTextChangedListener(simpleTextWatcher)
         inputEditText.setText(textForSave)
 
+        val sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        tracksHistory = Gson()
+            .fromJson(sharedPreferences
+                .getString(KEY_TRACK, null), Array<Track>::class.java)
+            ?.toMutableList() ?: mutableListOf()
+
+        val onTrackClickListener = OnTrackClickListener(tracksHistory)
+
+        val textHistory = findViewById<TextView>(R.id.textHistory)
+
+        val clearHistoryButton = findViewById<Button>(R.id.clearHistory)
+        clearHistoryButton.setOnClickListener {
+            tracksHistory.clear()
+            trackAdapter.updateTracks(emptyList())
+            textHistory.visibility = View.GONE
+            clearHistoryButton.visibility = View.GONE
+        }
+
+        inputEditText.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus && !tracksHistory.isEmpty() && inputEditText.text.isEmpty()) {
+                textHistory.visibility = View.VISIBLE
+                clearHistoryButton.visibility = View.VISIBLE
+                trackAdapter.updateTracks(tracksHistory)
+                erroreImage.visibility = View.GONE
+                erroreText.visibility = View.GONE
+                updateButton.visibility = View.GONE
+
+            } else {
+                textHistory.visibility = View.GONE
+                clearHistoryButton.visibility = View.GONE
+                trackAdapter.updateTracks(emptyList())
+            }
+
+        }
+
+        trackAdapter = TrackAdapter(emptyList(), onTrackClickListener)
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.adapter = trackAdapter
 
@@ -76,12 +119,20 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        val sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        sharedPreferences.edit()
+            .putString(KEY_TRACK, Gson().toJson(tracksHistory))
+            .apply()
+    }
+
     private lateinit var erroreImage: ImageView
     private lateinit var erroreText: TextView
     private lateinit var updateButton: Button
 
-    private var trackList = listOf<Track>()
-    private val trackAdapter = TrackAdapter(trackList)
+    private lateinit var trackAdapter: TrackAdapter
+    private lateinit var tracksHistory: MutableList<Track>
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://itunes.apple.com/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -108,7 +159,6 @@ class SearchActivity : AppCompatActivity() {
                     response: Response<iTunesResponse>
                 ) {
                     val tracks = response.body()?.results ?: emptyList()
-                    trackList = tracks
                     trackAdapter.updateTracks(tracks)
                     updateButton.visibility = View.GONE
                     if (tracks.isEmpty()) {
@@ -123,6 +173,7 @@ class SearchActivity : AppCompatActivity() {
 
                     }
                 }
+
                 override fun onFailure(call: Call<iTunesResponse>, t: Throwable) {
                     trackAdapter.updateTracks(emptyList())
                     erroreImage.setImageResource(R.drawable.error)
