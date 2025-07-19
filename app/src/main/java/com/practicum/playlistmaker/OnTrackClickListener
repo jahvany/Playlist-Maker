@@ -1,6 +1,6 @@
 package com.practicum.playlistmaker
 
-class onTrackClickListener(val tracksHistory: MutableList<Track>) {
+class OnTrackClickListener(val tracksHistory: MutableList<Track>) {
 
     fun onTrackClick(track: Track) {
         if (track in tracksHistory) {
