@@ -77,7 +77,7 @@ class SearchActivity : AppCompatActivity() {
                 .getString(KEY_TRACK, null), Array<Track>::class.java)
             ?.toMutableList() ?: mutableListOf()
 
-        val onTrackClickListener = OnTrackClickListener(tracksHistory)
+        val onTrackClickListener = OnTrackClickListener(this, tracksHistory)
 
         val textHistory = findViewById<TextView>(R.id.textHistory)
 
