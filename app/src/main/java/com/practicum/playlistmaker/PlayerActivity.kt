@@ -6,6 +6,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.Group
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
@@ -37,15 +38,15 @@ class PlayerActivity: AppCompatActivity() {
             findViewById<TextView>(R.id.artistName).text = it.artistName
             findViewById<TextView>(R.id.timeNumber).text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(it.trackTimeMillis)
             if (it.collectionName.isEmpty()) {
-                findViewById<FrameLayout>(R.id.frame3).visibility = View.GONE
+                findViewById<Group>(R.id.albumGroup).visibility = View.GONE
             } else {
-                findViewById<FrameLayout>(R.id.frame3).visibility = View.VISIBLE
+                findViewById<Group>(R.id.albumGroup).visibility = View.VISIBLE
                 findViewById<TextView>(R.id.albumName).text = it.collectionName
             }
             if (it.releaseDate.isEmpty()) {
-                findViewById<FrameLayout>(R.id.frame2).visibility = View.GONE
+                findViewById<Group>(R.id.yearGroup).visibility = View.GONE
             } else {
-                findViewById<FrameLayout>(R.id.frame2).visibility = View.VISIBLE
+                findViewById<Group>(R.id.yearGroup).visibility = View.VISIBLE
                 findViewById<TextView>(R.id.yearNumber).text = it.releaseDate.substring(0, 4)
             }
             findViewById<TextView>(R.id.countryName).text = it.country
