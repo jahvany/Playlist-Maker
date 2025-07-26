@@ -77,9 +77,7 @@ class SearchActivity : AppCompatActivity() {
                 .getString(KEY_TRACK, null), Array<Track>::class.java)
             ?.toMutableList() ?: mutableListOf()
 
-        val onTrackClickListener = OnTrackClickListener(tracksHistory)
-
-        val textHistory = findViewById<TextView>(R.id.textHistory)
+        textHistory = findViewById(R.id.textHistory)
 
         val clearHistoryButton = findViewById<Button>(R.id.clearHistory)
         clearHistoryButton.setOnClickListener {
@@ -106,6 +104,8 @@ class SearchActivity : AppCompatActivity() {
 
         }
 
+        val onTrackClickListener = OnTrackClickListener(this, tracksHistory)
+
         trackAdapter = TrackAdapter(emptyList(), onTrackClickListener)
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.adapter = trackAdapter
@@ -116,6 +116,14 @@ class SearchActivity : AppCompatActivity() {
 
         updateButton.setOnClickListener {
             showTracks(inputEditText.text.toString())
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (textHistory.visibility == View.VISIBLE) {
+            trackAdapter.updateTracks(tracksHistory)
         }
     }
 
@@ -130,6 +138,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var erroreImage: ImageView
     private lateinit var erroreText: TextView
     private lateinit var updateButton: Button
+    private lateinit var textHistory: TextView
 
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var tracksHistory: MutableList<Track>

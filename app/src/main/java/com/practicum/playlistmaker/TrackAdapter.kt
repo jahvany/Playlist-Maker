@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class TrackAdapter(
     private var tracks: List<Track>,
-    private val onTrackClickListener: onTrackClickListener
+    private val onTrackClickListener: OnTrackClickListener
 ) : RecyclerView.Adapter<TrackViewHolder> () {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
@@ -30,6 +30,4 @@ class TrackAdapter(
         tracks = newTracks
         notifyDataSetChanged()
     }
-
-
 }
