@@ -31,6 +31,9 @@
         <activity
             android:name=".MediaActivity"
             android:exported="false" />
+        <activity
+            android:name=".PlayerActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
