@@ -81,7 +81,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         inputEditText.setOnFocusChangeListener { view, hasFocus ->
-            if (hasFocus && !tracksHistory.isEmpty() && inputEditText.text.isEmpty()) {
+            if (hasFocus && tracksHistory.isNotEmpty() && inputEditText.text.isEmpty()) {
                 textHistory.visibility = View.VISIBLE
                 clearHistoryButton.visibility = View.VISIBLE
                 trackAdapter.updateTracks(tracksHistory)
@@ -146,6 +146,11 @@ class SearchActivity : AppCompatActivity() {
             .apply()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(searchRunnable)
+    }
+
     private lateinit var erroreImage: ImageView
     private lateinit var erroreText: TextView
     private lateinit var updateButton: Button
@@ -175,10 +180,14 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showTracks(text: String) {
-        if (text.isEmpty()) {
-            trackAdapter.updateTracks(tracksHistory)
-            textHistory.visibility = View.VISIBLE
-            clearHistoryButton.visibility = View.VISIBLE
+        if (text.trim().isEmpty()) {
+            if (tracksHistory.isNotEmpty()) {
+                trackAdapter.updateTracks(tracksHistory)
+                textHistory.visibility = View.VISIBLE
+                clearHistoryButton.visibility = View.VISIBLE
+            } else {
+                trackAdapter.updateTracks(emptyList())
+            }
         } else {
             trackAdapter.updateTracks(emptyList())
             erroreImage.visibility = View.GONE

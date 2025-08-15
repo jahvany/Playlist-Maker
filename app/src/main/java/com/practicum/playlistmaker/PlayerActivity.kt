@@ -18,12 +18,20 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 class PlayerActivity : AppCompatActivity() {
-    companion object {
-        private const val TIME_CHEK_DELAY = 250L
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
+
+    private lateinit var play: ImageButton
+    private lateinit var playTime: TextView
+    private var mediaPlayer = MediaPlayer()
+    private var playerState = STATE_DEFAULT
+    private val handler = Handler(Looper.getMainLooper())
+
+    private val setTimeRunnable = object : Runnable {
+        override fun run() {
+            if (mediaPlayer.isPlaying) {
+                setTime()
+                handler.postDelayed(this, TIME_CHEK_DELAY)
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,20 +94,6 @@ class PlayerActivity : AppCompatActivity() {
         mediaPlayer.release()
     }
 
-    private lateinit var play: ImageButton
-    private lateinit var playTime: TextView
-    private var mediaPlayer = MediaPlayer()
-    private var playerState = STATE_DEFAULT
-    private val handler = Handler(Looper.getMainLooper())
-
-    private val setTimeRunnable = object : Runnable {
-        override fun run() {
-            if (mediaPlayer.isPlaying) {
-                setTime()
-                handler.postDelayed(this, TIME_CHEK_DELAY)
-            }
-        }
-    }
 
     fun setTime() {
         playTime.setText(
@@ -134,6 +128,7 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun pausePlayer() {
         mediaPlayer.pause()
+        handler.removeCallbacks(setTimeRunnable)
         play.setImageResource(R.drawable.play)
         playerState = STATE_PAUSED
     }
@@ -148,5 +143,12 @@ class PlayerActivity : AppCompatActivity() {
                 startPlayer()
             }
         }
+    }
+    companion object {
+        private const val TIME_CHEK_DELAY = 250L
+        private const val STATE_DEFAULT = 0
+        private const val STATE_PREPARED = 1
+        private const val STATE_PLAYING = 2
+        private const val STATE_PAUSED = 3
     }
 }
