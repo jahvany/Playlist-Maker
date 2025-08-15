@@ -22,4 +22,5 @@
     <string name="year">Год</string>
     <string name="genre">Жанр</string>
     <string name="country">Страна</string>
+    <string name="zeroTime">00:00</string>
 </resources>
