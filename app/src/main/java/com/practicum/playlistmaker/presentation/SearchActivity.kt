@@ -18,16 +18,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.gson.Gson
-import com.practicum.playlistmaker.presentation.OnTrackClickListener
+import com.practicum.playlistmaker.Creator
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.domain.models.Track
-import com.practicum.playlistmaker.data.network.iTunesApi
-import com.practicum.playlistmaker.data.dto.iTunesResponse
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import com.practicum.playlistmaker.domain.api.TracksInteractor
 
 class SearchActivity : AppCompatActivity() {
 
@@ -56,6 +50,7 @@ class SearchActivity : AppCompatActivity() {
         }
         inputEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
+                handler.removeCallbacks(searchRunnable)
                 showTracks(inputEditText.text.toString())
                 val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(inputEditText.windowToken, 0)
@@ -165,11 +160,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var tracksHistory: MutableList<Track>
     private lateinit var progressBar: ProgressBar
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("https://itunes.apple.com/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-    private val iTunesApiService = retrofit.create(iTunesApi::class.java)
+    private val tracksInteractor = Creator.provideTracksInteractor()
 
     var textForSave = ""
 
@@ -201,38 +192,32 @@ class SearchActivity : AppCompatActivity() {
             clearHistoryButton.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
 
-            iTunesApiService.search(text)
-                .enqueue(object : Callback<iTunesResponse> {
-                    override fun onResponse(
-                        call: Call<iTunesResponse>,
-                        response: Response<iTunesResponse>
-                    ) {
-                        val tracks = response.body()?.results ?: emptyList()
-                        trackAdapter.updateTracks(tracks)
-                        updateButton.visibility = View.GONE
-                        progressBar.visibility = View.GONE
-                        if (tracks.isEmpty()) {
-                            erroreImage.setImageResource(R.drawable.nothing)
-                            erroreText.setText(R.string.searchNothing)
-                            erroreImage.visibility = View.VISIBLE
-                            erroreText.visibility = View.VISIBLE
-                        } else {
-                            erroreImage.visibility = View.GONE
-                            erroreText.visibility = View.GONE
-                        }
-                    }
+            tracksInteractor.searchTracks(text, object : TracksInteractor.TracksConsumer {
+                override fun consume(foundTracks: List<Track>) {
+                    trackAdapter.updateTracks(foundTracks)
+                    updateButton.visibility = View.GONE
+                    progressBar.visibility = View.GONE
 
-                    override fun onFailure(call: Call<iTunesResponse>, t: Throwable) {
-                        trackAdapter.updateTracks(emptyList())
-                        erroreImage.setImageResource(R.drawable.error)
-                        erroreText.setText(R.string.searchError)
+                    if (foundTracks.isEmpty()) {
+                        erroreImage.setImageResource(R.drawable.nothing)
+                        erroreText.setText(R.string.searchNothing)
                         erroreImage.visibility = View.VISIBLE
                         erroreText.visibility = View.VISIBLE
-                        updateButton.visibility = View.VISIBLE
-                        progressBar.visibility = View.GONE
+                    } else {
+                        erroreImage.visibility = View.GONE
+                        erroreText.visibility = View.GONE
                     }
                 }
-                )
+                override fun onFailure(error: Throwable) {
+                    trackAdapter.updateTracks(emptyList())
+                    erroreImage.setImageResource(R.drawable.error)
+                    erroreText.setText(R.string.searchError)
+                    erroreImage.visibility = View.VISIBLE
+                    erroreText.visibility = View.VISIBLE
+                    updateButton.visibility = View.VISIBLE
+                    progressBar.visibility = View.GONE
+                }
+            })
         }
     }
 
