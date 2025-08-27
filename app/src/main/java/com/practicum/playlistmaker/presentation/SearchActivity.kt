@@ -1,6 +1,5 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.presentation
 
-import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -19,6 +18,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.gson.Gson
+import com.practicum.playlistmaker.presentation.OnTrackClickListener
+import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.data.network.iTunesApi
+import com.practicum.playlistmaker.data.dto.iTunesResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -46,14 +50,14 @@ class SearchActivity : AppCompatActivity() {
         clearButton.setOnClickListener {
             trackAdapter.updateTracks(emptyList())
             inputEditText.setText("")
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(inputEditText.windowToken, 0)
             inputEditText.clearFocus()
         }
         inputEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 showTracks(inputEditText.text.toString())
-                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(inputEditText.windowToken, 0)
                 inputEditText.clearFocus()
                 true

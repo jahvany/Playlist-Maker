@@ -1,7 +1,8 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.presentation
 
 import android.content.Context
 import android.content.Intent
+import com.practicum.playlistmaker.domain.models.Track
 
 class OnTrackClickListener(
     private val context: Context,
