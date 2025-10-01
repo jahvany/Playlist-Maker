@@ -6,6 +6,8 @@ interface SearchHistoryInteractor {
     fun getHistory(consumer: HistoryConsumer)
     fun saveToHistory(track: Track)
 
+    fun clearHistory()
+
     interface HistoryConsumer {
         fun consume(searchHistory: List<Track>)
     }

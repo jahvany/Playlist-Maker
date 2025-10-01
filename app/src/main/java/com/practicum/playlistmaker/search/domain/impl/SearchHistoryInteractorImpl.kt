@@ -13,6 +13,20 @@ class SearchHistoryInteractorImpl(
     }
 
     override fun saveToHistory(track: Track) {
-        repository.saveToHistory(track)
+        val currentHistory = repository.getHistory().data?.toMutableList() ?: mutableListOf()
+
+        currentHistory.remove(track)
+
+        currentHistory.add(0, track)
+
+        if (currentHistory.size > 10) {
+            currentHistory.subList(10, currentHistory.size).clear()
+        }
+
+        repository.saveHistory(currentHistory)
+    }
+
+    override fun clearHistory() {
+        repository.saveHistory(emptyList())
     }
 }

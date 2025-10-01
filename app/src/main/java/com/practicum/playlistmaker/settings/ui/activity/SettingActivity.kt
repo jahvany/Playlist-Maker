@@ -8,18 +8,20 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.settings.data.App
-import com.practicum.playlistmaker.settings.domain.impl.SettingsInteractorImpl
+import com.practicum.playlistmaker.App
 import com.practicum.playlistmaker.settings.ui.view_model.SettingsViewModel
 import com.practicum.playlistmaker.sharing.data.ExternalNavigatorImpl
-import com.practicum.playlistmaker.sharing.domain.impl.SharingInteractorImpl
+import com.practicum.playlistmaker.util.Creator
 
 class SettingActivity : AppCompatActivity() {
-
+    val sharingInteractor = Creator.provideSharingInteractor(
+        ExternalNavigatorImpl(applicationContext)
+    )
+    val settingsInteractor = Creator.provideSettingsInteractor()
     private val viewModel: SettingsViewModel by viewModels {
         SettingsViewModel.getFactory(
-            SharingInteractorImpl(ExternalNavigatorImpl(this), resources),
-            SettingsInteractorImpl(this)
+            sharingInteractor,
+            settingsInteractor
         )
     }
 
@@ -31,8 +33,8 @@ class SettingActivity : AppCompatActivity() {
         titleSettings.setNavigationOnClickListener { finish() }
 
         val themeSwitch = findViewById<SwitchMaterial>(R.id.themeSwitch)
-        val settingsInteractor = SettingsInteractorImpl(this)
-        themeSwitch.isChecked = settingsInteractor.getThemeSettings().isDarkTheme
+
+        themeSwitch.isChecked = viewModel.darkTheme.value ?: false
 
         themeSwitch.setOnCheckedChangeListener { _, checked ->
             viewModel.switchTheme(checked)

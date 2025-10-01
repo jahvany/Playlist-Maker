@@ -58,16 +58,13 @@ class SearchViewModel(
     fun saveTrack(track: Track) {
         searchHistoryInteractor.getHistory(object : SearchHistoryInteractor.HistoryConsumer {
             override fun consume(searchHistory: List<Track>) {
-                val history = searchHistory.toMutableList()
-                if (track in history) history.remove(track)
-                history.add(0, track)
-                if (history.size > 10) history.removeAt(10)
                 searchHistoryInteractor.saveToHistory(track)
             }
         })
     }
 
     fun clearHistory() {
+        searchHistoryInteractor.clearHistory()
         _state.value = SearchState.History(emptyList())
     }
 

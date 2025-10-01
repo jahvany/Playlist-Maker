@@ -12,6 +12,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
 import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.player.domain.model.PlayerState
+import com.practicum.playlistmaker.player.domain.model.PlayerState.Default
+import com.practicum.playlistmaker.player.domain.model.PlayerState.Paused
+import com.practicum.playlistmaker.player.domain.model.PlayerState.Playing
+import com.practicum.playlistmaker.player.domain.model.PlayerState.Prepared
 import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.player.ui.view_model.PlayerViewModel
 import java.text.SimpleDateFormat
@@ -19,14 +24,6 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 class PlayerActivity : AppCompatActivity() {
-    companion object {
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
-    }
-
-
     private lateinit var play: ImageButton
     private lateinit var playTime: TextView
 
@@ -56,12 +53,8 @@ class PlayerActivity : AppCompatActivity() {
             PlayerViewModel.getFactory(url)
         )[PlayerViewModel::class.java]
 
-        viewModel.observeState().observe(this) {
-            updateButton(it)
-        }
-
-        viewModel.observeTime().observe(this) {
-            updateTimer(it)
+        viewModel.stateLiveData.observe(this) {
+            update(it)
         }
 
         track?.let {
@@ -97,20 +90,17 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    fun updateButton(state: Int) {
+    fun update(state: PlayerState) {
+        playTime.text = state.timer
         when (state) {
-            STATE_DEFAULT -> play.animate().alpha(0.5f)
-            STATE_PREPARED -> {
+            is Default -> play.animate().alpha(0.5f)
+            is Prepared-> {
                 play.animate().alpha(1f)
                 play.setImageResource(R.drawable.play)
             }
-            STATE_PLAYING -> play.setImageResource(R.drawable.pause)
-            STATE_PAUSED -> play.setImageResource(R.drawable.play)
+            is Playing -> play.setImageResource(R.drawable.pause)
+            is Paused -> play.setImageResource(R.drawable.play)
         }
-    }
-
-    fun updateTimer(time: String) {
-        playTime.text = time
     }
 
     override fun onPause() {

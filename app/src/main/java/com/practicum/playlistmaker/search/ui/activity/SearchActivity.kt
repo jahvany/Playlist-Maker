@@ -2,8 +2,6 @@ package com.practicum.playlistmaker.search.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -12,6 +10,7 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.practicum.playlistmaker.R
@@ -42,7 +41,7 @@ class SearchActivity : AppCompatActivity() {
         val viewModel: SearchViewModel by viewModels {
             SearchViewModel.getFactory(
                 Creator.provideTracksInteractor(),
-                Creator.provideSearchHistoryInteractor(this)
+                Creator.provideSearchHistoryInteractor()
             )
         }
 
@@ -74,19 +73,11 @@ class SearchActivity : AppCompatActivity() {
             inputEditText.text.clear()
         }
 
-        val simpleTextWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                clearButton.isVisible = !s.isNullOrEmpty()
-                viewModel.textForSave = s?.toString().orEmpty()
-                viewModel.searchDebounce(viewModel.textForSave)
-            }
-
-            override fun afterTextChanged(s: Editable) {}
+        inputEditText.doOnTextChanged { text, _, _, _ ->
+            clearButton.isVisible = !text.isNullOrEmpty()
+            viewModel.textForSave = text?.toString().orEmpty()
+            viewModel.searchDebounce(viewModel.textForSave)
         }
-
-        inputEditText.addTextChangedListener(simpleTextWatcher)
 
         clearHistoryButton.setOnClickListener {
             viewModel.clearHistory()

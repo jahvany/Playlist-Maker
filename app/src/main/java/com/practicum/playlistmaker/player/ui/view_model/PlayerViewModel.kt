@@ -9,17 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.practicum.playlistmaker.player.domain.model.PlayerState
+import com.practicum.playlistmaker.player.domain.model.PlayerState.Prepared
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PlayerViewModel(private val url: String?): ViewModel() {
     companion object {
         private const val TIME_CHEK_DELAY = 250L
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
-
         fun getFactory(url: String?): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 PlayerViewModel(url)
@@ -27,15 +24,12 @@ class PlayerViewModel(private val url: String?): ViewModel() {
         }
     }
     private var mediaPlayer = MediaPlayer()
-    private var playerState = STATE_DEFAULT
+
+    private val state = MutableLiveData<PlayerState>()
+    val stateLiveData: LiveData<PlayerState> = state
+
+    private var timer = "00:00"
     private val handler = Handler(Looper.getMainLooper())
-
-    private var timer ="00:00"
-    private val timerLiveData = MutableLiveData(timer)
-    fun observeTime(): LiveData<String> = timerLiveData
-
-    private val stateLiveData = MutableLiveData(playerState)
-    fun observeState(): LiveData<Int> = stateLiveData
 
     private val setTimeRunnable = object : Runnable {
         override fun run() {
@@ -46,6 +40,7 @@ class PlayerViewModel(private val url: String?): ViewModel() {
         }
     }
     init {
+        state.postValue(PlayerState.Default)
         preparePlayer()
     }
     fun setTime() {
@@ -53,13 +48,12 @@ class PlayerViewModel(private val url: String?): ViewModel() {
             "mm:ss",
             Locale.getDefault()
         ).format(mediaPlayer.currentPosition)
-        timerLiveData.postValue(timer)
+        state.postValue(state.value?.setTimer(timer) ?: PlayerState.Default)
     }
 
     fun preparePlayer() {
         if (url.isNullOrEmpty()) {
-            playerState = STATE_DEFAULT
-            stateLiveData.postValue(playerState)
+            state.postValue(PlayerState.Default)
             return
         }
         try {
@@ -67,50 +61,44 @@ class PlayerViewModel(private val url: String?): ViewModel() {
             mediaPlayer.setDataSource(url)
             mediaPlayer.prepareAsync()
             mediaPlayer.setOnPreparedListener {
-                playerState = STATE_PREPARED
-                stateLiveData.postValue(playerState)
+                state.postValue(PlayerState.Prepared)
             }
             mediaPlayer.setOnCompletionListener {
-                playerState = STATE_PREPARED
-                stateLiveData.postValue(playerState)
+                state.postValue(PlayerState.Prepared)
                 resetTimer()
             }
         } catch (e: Exception) {
-            playerState = STATE_DEFAULT
-            stateLiveData.postValue(playerState)
+            state.postValue(PlayerState.Default)
             e.printStackTrace()
         }
     }
     private fun startPlayer() {
         mediaPlayer.start()
-        playerState = STATE_PLAYING
-        stateLiveData.postValue(playerState)
+        state.postValue(PlayerState.Playing(timer))
         handler.post(setTimeRunnable)
     }
 
     fun pausePlayer() {
         mediaPlayer.pause()
         handler.removeCallbacks(setTimeRunnable)
-        playerState = STATE_PAUSED
-        stateLiveData.postValue(playerState)
+        state.postValue(PlayerState.Paused(timer))
     }
 
     fun playbackControl() {
-        when (playerState) {
-            STATE_PLAYING -> {
+        when (state.value) {
+            is PlayerState.Playing -> {
                 pausePlayer()
             }
-
-            STATE_PREPARED, STATE_PAUSED -> {
+            is Prepared, is PlayerState.Paused -> {
                 startPlayer()
             }
+            else -> null
         }
     }
 
     fun resetTimer() {
         handler.removeCallbacks(setTimeRunnable)
-        timer ="00:00"
-        timerLiveData.postValue(timer)
+        state.postValue(state.value?.setTimer("00:00") ?: PlayerState.Default)
     }
 
     override fun onCleared() {

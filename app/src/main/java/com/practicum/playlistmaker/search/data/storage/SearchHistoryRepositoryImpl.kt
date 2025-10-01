@@ -10,10 +10,8 @@ class SearchHistoryRepositoryImpl(
     private val storage: StorageClient<ArrayList<Track>>
 ): SearchHistoryRepository {
 
-    override fun saveToHistory(track: Track) {
-        val tracks = storage.getData() ?: arrayListOf()
-        tracks.add(track)
-        storage.storeData(tracks)
+    override fun saveHistory(history: List<Track>) {
+        storage.storeData(ArrayList(history))
     }
 
     override fun getHistory(): Resource<List<Track>> {
