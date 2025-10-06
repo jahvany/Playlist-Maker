@@ -7,7 +7,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
@@ -18,7 +17,7 @@ import com.practicum.playlistmaker.player.ui.activity.PlayerActivity
 import com.practicum.playlistmaker.search.domain.models.SearchState
 import com.practicum.playlistmaker.search.ui.view_model.TrackAdapter
 import com.practicum.playlistmaker.search.ui.view_model.SearchViewModel
-import com.practicum.playlistmaker.util.Creator
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.getValue
 
 class SearchActivity : AppCompatActivity() {
@@ -38,12 +37,7 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
-        val viewModel: SearchViewModel by viewModels {
-            SearchViewModel.getFactory(
-                Creator.provideTracksInteractor(),
-                Creator.provideSearchHistoryInteractor()
-            )
-        }
+        val viewModel: SearchViewModel by viewModel()
 
         inputEditText = findViewById(R.id.inputEditText)
         clearButton = findViewById(R.id.clearIcon)

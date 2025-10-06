@@ -17,14 +17,8 @@ import java.util.Locale
 class PlayerViewModel(private val url: String?): ViewModel() {
     companion object {
         private const val TIME_CHEK_DELAY = 250L
-        fun getFactory(url: String?): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                PlayerViewModel(url)
-            }
-        }
     }
     private var mediaPlayer = MediaPlayer()
-
     private val state = MutableLiveData<PlayerState>()
     val stateLiveData: LiveData<PlayerState> = state
 

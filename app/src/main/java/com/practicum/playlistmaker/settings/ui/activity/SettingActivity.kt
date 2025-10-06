@@ -2,7 +2,6 @@ package com.practicum.playlistmaker.settings.ui.activity
 
 
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -10,20 +9,12 @@ import com.google.android.material.textview.MaterialTextView
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.App
 import com.practicum.playlistmaker.settings.ui.view_model.SettingsViewModel
-import com.practicum.playlistmaker.sharing.data.ExternalNavigatorImpl
-import com.practicum.playlistmaker.util.Creator
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.getValue
 
 class SettingActivity : AppCompatActivity() {
-    val sharingInteractor = Creator.provideSharingInteractor(
-        ExternalNavigatorImpl(applicationContext)
-    )
-    val settingsInteractor = Creator.provideSettingsInteractor()
-    private val viewModel: SettingsViewModel by viewModels {
-        SettingsViewModel.getFactory(
-            sharingInteractor,
-            settingsInteractor
-        )
-    }
+
+    private val viewModel: SettingsViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
