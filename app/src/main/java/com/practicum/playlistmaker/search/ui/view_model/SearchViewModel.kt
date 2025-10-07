@@ -21,14 +21,7 @@ class SearchViewModel(
     companion object {
         private const val CLICK_DEBOUNCE_DELAY = 1000L
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
-        fun getFactory(
-            tracksInteractor: TracksInteractor,
-            searchHistoryInteractor: SearchHistoryInteractor
-        ): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                SearchViewModel(tracksInteractor, searchHistoryInteractor)
-            }
-        }
+
     }
 
     private var isClickAllowed = true

@@ -2,7 +2,6 @@ package com.practicum.playlistmaker.settings.ui.activity
 
 
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -10,20 +9,13 @@ import com.google.android.material.textview.MaterialTextView
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.App
 import com.practicum.playlistmaker.settings.ui.view_model.SettingsViewModel
-import com.practicum.playlistmaker.sharing.data.ExternalNavigatorImpl
-import com.practicum.playlistmaker.util.Creator
+import com.practicum.playlistmaker.sharing.domain.model.EmailData
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.getValue
 
 class SettingActivity : AppCompatActivity() {
-    val sharingInteractor = Creator.provideSharingInteractor(
-        ExternalNavigatorImpl(applicationContext)
-    )
-    val settingsInteractor = Creator.provideSettingsInteractor()
-    private val viewModel: SettingsViewModel by viewModels {
-        SettingsViewModel.getFactory(
-            sharingInteractor,
-            settingsInteractor
-        )
-    }
+
+    private val viewModel: SettingsViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,15 +33,24 @@ class SettingActivity : AppCompatActivity() {
         }
 
         findViewById<MaterialTextView>(R.id.shareButton).setOnClickListener {
-            viewModel.shareApp()
+            val appLink = getString(R.string.messageAddress)
+            viewModel.shareApp(appLink)
         }
 
         findViewById<MaterialTextView>(R.id.supportButton).setOnClickListener {
-            viewModel.openSupport()
+            val supportEmail = EmailData(
+                emails = arrayOf(getString(R.string.myAddress)),
+                subject = getString(R.string.supportSubject),
+                message = getString(R.string.supportMessage)
+            )
+            viewModel.openSupport(supportEmail)
         }
 
         findViewById<MaterialTextView>(R.id.agreementButton).setOnClickListener {
-            viewModel.openTerms()
+            findViewById<MaterialTextView>(R.id.agreementButton).setOnClickListener {
+                val termsLink = getString(R.string.webSite)
+                viewModel.openTerms(termsLink)
+            }
         }
 
         viewModel.darkTheme.observe(this) { isDark ->

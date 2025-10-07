@@ -9,22 +9,12 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.practicum.playlistmaker.settings.domain.api.SettingsInteractor
 import com.practicum.playlistmaker.settings.domain.model.ThemeSettings
 import com.practicum.playlistmaker.sharing.domain.api.SharingInteractor
+import com.practicum.playlistmaker.sharing.domain.model.EmailData
 
 class SettingsViewModel(
     private val sharingInteractor: SharingInteractor,
     private val settingsInteractor: SettingsInteractor,
 ) : ViewModel() {
-
-    companion object {
-        fun getFactory(
-            sharingInteractor: SharingInteractor,
-            settingsInteractor: SettingsInteractor
-        ): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                SettingsViewModel(sharingInteractor, settingsInteractor)
-            }
-        }
-    }
 
     private val _darkTheme = MutableLiveData<Boolean>()
     val darkTheme: LiveData<Boolean> = _darkTheme
@@ -38,7 +28,7 @@ class SettingsViewModel(
         _darkTheme.value = isDark
     }
 
-    fun shareApp() = sharingInteractor.shareApp()
-    fun openSupport() = sharingInteractor.openSupport()
-    fun openTerms() = sharingInteractor.openTerms()
+    fun shareApp(appLink:String) = sharingInteractor.shareApp(appLink)
+    fun openSupport(supportEmail: EmailData) = sharingInteractor.openSupport(supportEmail)
+    fun openTerms(termsLink: String) = sharingInteractor.openTerms(termsLink)
 }

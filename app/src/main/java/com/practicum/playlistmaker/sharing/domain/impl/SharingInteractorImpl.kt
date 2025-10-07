@@ -5,21 +5,20 @@ import com.practicum.playlistmaker.sharing.domain.api.SharingInteractor
 import com.practicum.playlistmaker.sharing.domain.model.EmailData
 
 class SharingInteractorImpl(
-    private val externalNavigator: ExternalNavigator,
-    private val appLink: String,
-    private val termsLink: String,
-    private val supportEmail: EmailData
+    private val externalNavigator: ExternalNavigator
 ) : SharingInteractor {
 
-    override fun shareApp() {
+
+
+    override fun shareApp(appLink:String) {
         externalNavigator.shareLink(appLink)
     }
 
-    override fun openTerms() {
+    override fun openTerms(termsLink: String) {
         externalNavigator.openLink(termsLink)
     }
 
-    override fun openSupport() {
+    override fun openSupport(supportEmail: EmailData) {
         externalNavigator.openEmail(supportEmail)
     }
 }

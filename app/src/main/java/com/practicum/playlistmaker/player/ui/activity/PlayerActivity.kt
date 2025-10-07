@@ -19,6 +19,8 @@ import com.practicum.playlistmaker.player.domain.model.PlayerState.Playing
 import com.practicum.playlistmaker.player.domain.model.PlayerState.Prepared
 import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.player.ui.view_model.PlayerViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -27,8 +29,9 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var play: ImageButton
     private lateinit var playTime: TextView
 
-    private lateinit var viewModel: PlayerViewModel
-
+    private val viewModel: PlayerViewModel by viewModel {
+        parametersOf(intent.getParcelableExtra<Track>("track")?.previewUrl)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -46,12 +49,6 @@ class PlayerActivity : AppCompatActivity() {
         play = findViewById(R.id.playButton)
 
         playTime = findViewById(R.id.playTime)
-
-        val url = track?.previewUrl
-        viewModel = ViewModelProvider(
-            this,
-            PlayerViewModel.getFactory(url)
-        )[PlayerViewModel::class.java]
 
         viewModel.stateLiveData.observe(this) {
             update(it)
@@ -83,7 +80,10 @@ class PlayerActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.genreName).text = it.primaryGenreName
         }
 
-        viewModel.preparePlayer()
+        if (viewModel.stateLiveData.value == null ||
+            viewModel.stateLiveData.value is PlayerState.Default) {
+            viewModel.preparePlayer()
+        }
 
         play.setOnClickListener {
             viewModel.playbackControl()
@@ -105,7 +105,6 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        viewModel.pausePlayer()
     }
 
 }

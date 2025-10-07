@@ -14,17 +14,10 @@ import com.practicum.playlistmaker.player.domain.model.PlayerState.Prepared
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class PlayerViewModel(private val url: String?): ViewModel() {
+class PlayerViewModel(private val url: String?, private val mediaPlayer: MediaPlayer): ViewModel() {
     companion object {
         private const val TIME_CHEK_DELAY = 250L
-        fun getFactory(url: String?): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                PlayerViewModel(url)
-            }
-        }
     }
-    private var mediaPlayer = MediaPlayer()
-
     private val state = MutableLiveData<PlayerState>()
     val stateLiveData: LiveData<PlayerState> = state
 
@@ -41,7 +34,6 @@ class PlayerViewModel(private val url: String?): ViewModel() {
     }
     init {
         state.postValue(PlayerState.Default)
-        preparePlayer()
     }
     fun setTime() {
         timer = SimpleDateFormat(
@@ -104,6 +96,6 @@ class PlayerViewModel(private val url: String?): ViewModel() {
     override fun onCleared() {
         super.onCleared()
         resetTimer()
-        mediaPlayer.release()
+        mediaPlayer.reset()
     }
 }
