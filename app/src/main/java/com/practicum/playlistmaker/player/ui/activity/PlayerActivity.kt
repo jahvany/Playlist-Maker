@@ -80,7 +80,10 @@ class PlayerActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.genreName).text = it.primaryGenreName
         }
 
-        viewModel.preparePlayer()
+        if (viewModel.stateLiveData.value == null ||
+            viewModel.stateLiveData.value is PlayerState.Default) {
+            viewModel.preparePlayer()
+        }
 
         play.setOnClickListener {
             viewModel.playbackControl()
@@ -102,7 +105,6 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        viewModel.pausePlayer()
     }
 
 }

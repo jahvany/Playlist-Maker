@@ -16,15 +16,11 @@ val searchInteractorModule = module {
         Executors.newCachedThreadPool()
     }
 
-    single<Handler>{
-        Handler(Looper.getMainLooper())
+    factory<TracksInteractor> {
+        TracksInteractorImpl(get(), get())
     }
 
-    single<TracksInteractor> {
-        TracksInteractorImpl(get(), get(), get())
-    }
-
-    single<SearchHistoryInteractor> {
+    factory<SearchHistoryInteractor> {
         SearchHistoryInteractorImpl(get())
     }
 

@@ -6,7 +6,7 @@ import org.koin.dsl.module
 
 val settingsInteractorModule = module {
 
-    single<SettingsInteractor> {
+    factory<SettingsInteractor> {
         SettingsInteractorImpl(get())
     }
 

@@ -8,9 +8,9 @@ import java.util.concurrent.ExecutorService
 
 class TracksInteractorImpl(
     private val repository: TracksRepository,
-    private val executor: ExecutorService,
-    private val handler:Handler
+    private val executor: ExecutorService
     ) : TracksInteractor {
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun searchTracks(expression: String, consumer: TracksInteractor.TracksConsumer) {
         executor.execute {
