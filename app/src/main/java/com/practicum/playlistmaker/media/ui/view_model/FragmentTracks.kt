@@ -8,23 +8,27 @@ import androidx.fragment.app.Fragment
 import com.practicum.playlistmaker.databinding.FragmentMediaTracksBinding
 
 class FragmentTracks : Fragment() {
-    companion object {
-        private const val NUMBER = "number"
 
-        fun newInstance(number: Int) = FragmentTracks().apply {
-            arguments = Bundle().apply {
-                putInt(NUMBER, number)
-            }
-        }
-    }
 
-    private lateinit var binding: FragmentMediaTracksBinding
+    private var _binding: FragmentMediaTracksBinding? = null
+
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentMediaTracksBinding.inflate(inflater, container, false)
+        _binding = FragmentMediaTracksBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    companion object {
+        fun newInstance(number: Int) = FragmentTracks()
+
     }
 }

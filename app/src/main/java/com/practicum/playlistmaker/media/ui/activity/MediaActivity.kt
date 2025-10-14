@@ -35,8 +35,7 @@ class MediaActivity: AppCompatActivity() {
         tabMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = when (position) {
                 0 -> getString(R.string.mediaTabTracks)
-                1 -> getString(R.string.mediaTabPlaylist)
-                else -> ""
+                else -> getString(R.string.mediaTabPlaylist)
             }
         }
         tabMediator.attach()
