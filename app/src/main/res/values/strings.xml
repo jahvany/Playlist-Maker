@@ -23,4 +23,9 @@
     <string name="genre">Жанр</string>
     <string name="country">Страна</string>
     <string name="zeroTime">00:00</string>
+    <string name="nothingTracks">Ваша медиатека пуста</string>
+    <string name="nothingPlaylists">Вы не создали \nни одного плейлиста</string>
+    <string name="newPlaylist">Новый плейлист</string>
+    <string name="mediaTabTracks">Избранные треки</string>
+    <string name="mediaTabPlaylist">Плейлисты</string>
 </resources>
