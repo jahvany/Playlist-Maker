@@ -15,6 +15,7 @@
         android:fontFamily="@font/ys_display_medium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:tabTextAppearance="@style/tabTextAppearance"
         android:background="?attr/colorOnPrimary"
         app:tabTextColor="?attr/colorPrimary"
         app:tabIndicatorColor="?attr/colorPrimary"

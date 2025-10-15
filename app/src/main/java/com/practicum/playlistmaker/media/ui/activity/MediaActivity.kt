@@ -39,21 +39,6 @@ class MediaActivity: AppCompatActivity() {
             }
         }
         tabMediator.attach()
-        updateTabsTextCaps()
-
-        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) { updateTabsTextCaps() }
-            override fun onTabUnselected(tab: TabLayout.Tab?) { updateTabsTextCaps() }
-            override fun onTabReselected(tab: TabLayout.Tab?) { updateTabsTextCaps() }
-        })
-    }
-
-    private fun updateTabsTextCaps() {
-        for (i in 0 until binding.tabLayout.tabCount) {
-            val tabView = (binding.tabLayout.getChildAt(0) as ViewGroup).getChildAt(i) as ViewGroup
-            val textView = tabView.getChildAt(1) as? TextView
-            textView?.isAllCaps = false
-        }
     }
 
     override fun onDestroy() {
