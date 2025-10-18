@@ -13,6 +13,7 @@ glide = "4.14.2"
 retrofit = "2.9.0"
 lifecycle = "2.5.1"
 koin = "3.3.0"
+view-page2 = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -30,6 +31,7 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
 viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+view-page2 = {module = "androidx.viewpager2:viewpager2", version.ref = "view-page2" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
