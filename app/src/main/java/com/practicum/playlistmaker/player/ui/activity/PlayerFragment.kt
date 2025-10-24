@@ -1,17 +1,18 @@
 package com.practicum.playlistmaker.player.ui.activity
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.Group
-import androidx.lifecycle.ViewModelProvider
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.google.android.material.appbar.MaterialToolbar
 import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.databinding.FragmentPlayerBinding
 import com.practicum.playlistmaker.player.domain.model.PlayerState
 import com.practicum.playlistmaker.player.domain.model.PlayerState.Default
 import com.practicum.playlistmaker.player.domain.model.PlayerState.Paused
@@ -25,32 +26,35 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.roundToInt
 
-class PlayerActivity : AppCompatActivity() {
+class PlayerFragment : Fragment() {
     private lateinit var play: ImageButton
     private lateinit var playTime: TextView
+    private lateinit var binding: FragmentPlayerBinding
 
     private val viewModel: PlayerViewModel by viewModel {
-        parametersOf(intent.getParcelableExtra<Track>("track")?.previewUrl)
+        parametersOf(requireArguments().getParcelable<Track>(ARGS_TRACK)?.previewUrl)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentPlayerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_player)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        val track = intent.getParcelableExtra<Track>("track")
+        val track = requireArguments().getParcelable<Track>(ARGS_TRACK)
 
-        val titleSearch = findViewById<MaterialToolbar>(R.id.titlePlayer)
-        titleSearch.setNavigationOnClickListener { finish() }
+        binding.titlePlayer.setNavigationOnClickListener { findNavController().navigateUp() }
 
-        val cover = findViewById<ImageView>(R.id.cover)
+        val cover = binding.cover
         val radius = (8 * cover.context.resources.displayMetrics.density).roundToInt()
 
-        play = findViewById(R.id.playButton)
+        play = binding.playButton
 
-        playTime = findViewById(R.id.playTime)
+        playTime = binding.playTime
 
-        viewModel.stateLiveData.observe(this) {
+        viewModel.stateLiveData.observe(viewLifecycleOwner) {
             update(it)
         }
 
@@ -60,24 +64,24 @@ class PlayerActivity : AppCompatActivity() {
                 .placeholder(R.drawable.bigplaceholder)
                 .transform(RoundedCorners(radius))
                 .into(cover)
-            findViewById<TextView>(R.id.trackName).text = it.trackName
-            findViewById<TextView>(R.id.artistName).text = it.artistName
-            findViewById<TextView>(R.id.timeNumber).text =
+            binding.trackName.text = it.trackName
+            binding.artistName.text = it.artistName
+            binding.timeNumber.text =
                 SimpleDateFormat("mm:ss", Locale.getDefault()).format(it.trackTimeMillis)
             if (it.collectionName.isEmpty()) {
-                findViewById<Group>(R.id.albumGroup).visibility = View.GONE
+                binding.albumGroup.visibility = View.GONE
             } else {
-                findViewById<Group>(R.id.albumGroup).visibility = View.VISIBLE
-                findViewById<TextView>(R.id.albumName).text = it.collectionName
+                binding.albumGroup.visibility = View.VISIBLE
+                binding.albumName.text = it.collectionName
             }
             if (it.releaseDate.isEmpty()) {
-                findViewById<Group>(R.id.yearGroup).visibility = View.GONE
+                binding.yearGroup.visibility = View.GONE
             } else {
-                findViewById<Group>(R.id.yearGroup).visibility = View.VISIBLE
-                findViewById<TextView>(R.id.yearNumber).text = it.releaseDate.substring(0, 4)
+                binding.yearGroup.visibility = View.VISIBLE
+                binding.yearNumber.text = it.releaseDate.substring(0, 4)
             }
-            findViewById<TextView>(R.id.countryName).text = it.country
-            findViewById<TextView>(R.id.genreName).text = it.primaryGenreName
+            binding.countryName.text = it.country
+            binding.genreName.text = it.primaryGenreName
         }
 
         if (viewModel.stateLiveData.value == null ||
@@ -107,4 +111,10 @@ class PlayerActivity : AppCompatActivity() {
         super.onPause()
     }
 
+    companion object {
+        private const val ARGS_TRACK = "track"
+
+        fun createArgs(track: Track): Bundle =
+            bundleOf(ARGS_TRACK to track)
+    }
 }

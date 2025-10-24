@@ -2,27 +2,32 @@ package com.practicum.playlistmaker.search.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.MaterialToolbar
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.player.ui.activity.PlayerActivity
+import com.practicum.playlistmaker.databinding.FragmentSearchBinding
+import com.practicum.playlistmaker.player.ui.activity.PlayerFragment
 import com.practicum.playlistmaker.search.domain.models.SearchState
 import com.practicum.playlistmaker.search.ui.view_model.TrackAdapter
 import com.practicum.playlistmaker.search.ui.view_model.SearchViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.getValue
 
-class SearchActivity : AppCompatActivity() {
+class SearchFragment : Fragment() {
 
     private lateinit var trackAdapter: TrackAdapter
+    private lateinit var binding: FragmentSearchBinding
+    private val viewModel: SearchViewModel by viewModel()
 
     private lateinit var inputEditText: EditText
     private lateinit var clearButton: ImageView
@@ -33,35 +38,37 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var textHistory: TextView
     private lateinit var clearHistoryButton: Button
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        val viewModel: SearchViewModel by viewModel()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        inputEditText = findViewById(R.id.inputEditText)
-        clearButton = findViewById(R.id.clearIcon)
-        progressBar = findViewById(R.id.progressBar)
-        erroreImage = findViewById(R.id.erroreImage)
-        erroreText = findViewById(R.id.erroreText)
-        updateButton = findViewById(R.id.update)
-        textHistory = findViewById(R.id.textHistory)
-        clearHistoryButton = findViewById(R.id.clearHistory)
 
-        val titleSearch = findViewById<MaterialToolbar>(R.id.titleSearch)
-        titleSearch.setNavigationOnClickListener { finish() }
+
+        inputEditText = binding.inputEditText
+        clearButton = binding.clearIcon
+        progressBar = binding.progressBar
+        erroreImage = binding.erroreImage
+        erroreText = binding.erroreText
+        updateButton = binding.update
+        textHistory = binding.textHistory
+        clearHistoryButton = binding.clearHistory
+
+        binding.titleSearch.setNavigationOnClickListener { findNavController().navigateUp() }
 
         trackAdapter = TrackAdapter(emptyList()) { track ->
             if (viewModel.clickDebounce()) {
                 viewModel.saveTrack(track)
-                val intent = Intent(this, PlayerActivity::class.java)
-                intent.putExtra("track", track)
-                startActivity(intent)
+                findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
+                    PlayerFragment.createArgs(track))
             }
         }
-        findViewById<RecyclerView>(R.id.recyclerView).adapter = trackAdapter
+        binding.recyclerView.adapter = trackAdapter
 
-        viewModel.state.observe(this) { render(it) }
+        viewModel.state.observe(viewLifecycleOwner) { render(it) }
 
         clearButton.setOnClickListener {
             inputEditText.text.clear()
@@ -110,9 +117,16 @@ class SearchActivity : AppCompatActivity() {
                 trackAdapter.updateTracks(emptyList())
             }
             is SearchState.History -> {
+                if(inputEditText.hasFocus()) {
                 trackAdapter.updateTracks(state.tracks)
                 textHistory.isVisible = state.tracks.isNotEmpty()
                 clearHistoryButton.isVisible = state.tracks.isNotEmpty()
+                }
+                inputEditText.setOnFocusChangeListener { _, hasFocus ->
+                    trackAdapter.updateTracks(state.tracks)
+                    textHistory.isVisible = state.tracks.isNotEmpty()
+                    clearHistoryButton.isVisible = state.tracks.isNotEmpty()
+                }
             }
         }
     }

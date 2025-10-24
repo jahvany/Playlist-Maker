@@ -1,42 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSecondary"
-    tools:context=".main.ui.activity.MainActivity"
-    android:orientation="vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingBottom="28dp"
-    >
+    tools:context=".main.ui.activity.MainActivity">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/titleMain"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginBottom="24dp"
-        android:background="?attr/colorSecondary"
-        app:title="@string/app_name"
-        app:titleTextAppearance="@style/titleStyle"
-        app:titleTextColor="@color/white"
-        app:contentInsetStart="0dp"
-        android:elevation="0dp"/>
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/container_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-        <Button
-            android:id="@+id/search"
-            style="@style/mainButtonStyle"
-            android:text="@string/search"
-            app:icon="@drawable/search"/>
-
-        <Button style="@style/mainButtonStyle"
-            android:id="@+id/media"
-            android:text="@string/media"
-            app:icon="@drawable/media"/>
-
-        <Button style="@style/mainButtonStyle"
-            android:id="@+id/settings"
-            android:text="@string/settings"
-            app:icon="@drawable/settings"/>
-</LinearLayout>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_navigation_line"
+        android:elevation="0dp"
+        app:menu="@menu/bottom_navigation_menu"
+        app:itemIconTint="@color/icon_navigation_color"
+        app:itemTextColor="@color/icon_navigation_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
