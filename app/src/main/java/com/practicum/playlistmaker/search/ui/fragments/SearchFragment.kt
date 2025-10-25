@@ -1,6 +1,5 @@
-package com.practicum.playlistmaker.search.ui.activity
+package com.practicum.playlistmaker.search.ui.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentSearchBinding
-import com.practicum.playlistmaker.player.ui.activity.PlayerFragment
+import com.practicum.playlistmaker.player.ui.fragments.PlayerFragment
 import com.practicum.playlistmaker.search.domain.models.SearchState
 import com.practicum.playlistmaker.search.ui.view_model.TrackAdapter
 import com.practicum.playlistmaker.search.ui.view_model.SearchViewModel
@@ -56,8 +55,6 @@ class SearchFragment : Fragment() {
         updateButton = binding.update
         textHistory = binding.textHistory
         clearHistoryButton = binding.clearHistory
-
-        binding.titleSearch.setNavigationOnClickListener { findNavController().navigateUp() }
 
         trackAdapter = TrackAdapter(emptyList()) { track ->
             if (viewModel.clickDebounce()) {

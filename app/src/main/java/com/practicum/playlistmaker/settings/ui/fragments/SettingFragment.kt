@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.settings.ui.activity
+package com.practicum.playlistmaker.settings.ui.fragments
 
 
 import android.os.Bundle
@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.App
 import com.practicum.playlistmaker.databinding.FragmentSettingsBinding
@@ -28,8 +27,6 @@ class SettingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.titleSettings.setNavigationOnClickListener { findNavController().navigateUp() }
 
 
         binding.themeSwitch.isChecked = viewModel.darkTheme.value ?: false

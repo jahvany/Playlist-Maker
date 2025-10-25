@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/media"
     style="@style/activityLL"
-    tools:context=".media.ui.activity.MediaFragment">
+    tools:context=".media.ui.fragments.MediaFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/titleMedia"

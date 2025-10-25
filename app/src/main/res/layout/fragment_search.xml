@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/search"
     style="@style/activityLL"
-    tools:context=".search.ui.activity.SearchFragment">
+    tools:context=".search.ui.fragments.SearchFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/titleSearch"
