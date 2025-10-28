@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/search"
-    style="@style/activityLL">
+    style="@style/activityLL"
+    tools:context=".search.ui.fragments.SearchFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/titleSearch"

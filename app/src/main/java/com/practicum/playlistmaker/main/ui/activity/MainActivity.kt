@@ -1,34 +1,36 @@
 package com.practicum.playlistmaker.main.ui.activity
 
-import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.media.ui.activity.MediaActivity
-import com.practicum.playlistmaker.search.ui.activity.SearchActivity
-import com.practicum.playlistmaker.settings.ui.activity.SettingActivity
+import com.practicum.playlistmaker.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val buttonSearch = findViewById<Button>(R.id.search)
-        buttonSearch.setOnClickListener {
-                startActivity(Intent(this, SearchActivity::class.java))
-        }
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.container_view) as NavHostFragment
+        val navController = navHostFragment.navController
 
-        val buttonMedia = findViewById<Button>(R.id.media)
-        buttonMedia.setOnClickListener {
-            startActivity(Intent(this, MediaActivity::class.java))
-        }
+        binding.bottomNavigationView.setupWithNavController(navController)
 
-        val buttonSettings = findViewById<Button>(R.id.settings)
-        buttonSettings.setOnClickListener {
-            startActivity(Intent(this, SettingActivity::class.java))
-
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.playerFragment -> {
+                    binding.bottomNavigationView.visibility = View.GONE
+                }
+                else -> {
+                    binding.bottomNavigationView.visibility = View.VISIBLE
+                }
+            }
         }
     }
 }

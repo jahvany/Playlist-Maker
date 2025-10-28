@@ -1,34 +1,35 @@
-package com.practicum.playlistmaker.media.ui.activity
+package com.practicum.playlistmaker.media.ui.fragments
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.tabs.TabLayout
+import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.databinding.ActivityMediaBinding
+import com.practicum.playlistmaker.databinding.FragmentMediaBinding
 import com.practicum.playlistmaker.media.ui.view_model.MediaViewModel
 import com.practicum.playlistmaker.media.ui.view_model.MediaViewPagerAdapter
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.getValue
 
-class MediaActivity: AppCompatActivity() {
+class MediaFragment: Fragment() {
 
     val viewModel: MediaViewModel by viewModel()
 
-    private lateinit var binding: ActivityMediaBinding
+    private lateinit var binding: FragmentMediaBinding
 
     private lateinit var tabMediator: TabLayoutMediator
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMediaBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentMediaBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        binding.titleMedia.setNavigationOnClickListener { finish() }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        binding.viewPager.adapter = MediaViewPagerAdapter(supportFragmentManager, lifecycle)
+        binding.viewPager.adapter = MediaViewPagerAdapter(childFragmentManager, viewLifecycleOwner.lifecycle)
 
         binding.tabLayout.setSelectedTabIndicator(R.drawable.custom_tab_indicator)
 
@@ -38,11 +39,11 @@ class MediaActivity: AppCompatActivity() {
                 else -> getString(R.string.mediaTabPlaylist)
             }
         }
-        tabMediator.attach()
+            tabMediator.attach()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         tabMediator.detach()
     }
 }
