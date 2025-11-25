@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flow
 class TracksRepositoryImpl(private val networkClient: NetworkClient) : TracksRepository {
     override fun searchTracks(expression: String): Flow<Resource<List<Track>>> = flow {
         val response = networkClient.doRequest(iTunesRequest(expression))
-        return@flow when (response.resultCode) {
+        when (response.resultCode) {
             200 -> {
                 with(response as iTunesResponse) {
                     val data = response.results.map {

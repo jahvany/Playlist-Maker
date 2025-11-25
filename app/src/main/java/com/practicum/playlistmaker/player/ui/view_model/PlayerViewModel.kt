@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.player.domain.model.PlayerState
 import com.practicum.playlistmaker.player.domain.model.PlayerState.Prepared
 import kotlinx.coroutines.Job
@@ -15,7 +16,7 @@ import java.util.Locale
 
 class PlayerViewModel(private val url: String?, private val mediaPlayer: MediaPlayer): ViewModel() {
     companion object {
-        private const val TIME_CHEK_DELAY = 250L
+        private const val TIME_CHEK_DELAY = 300L
     }
     private val state = MutableLiveData<PlayerState>()
     val stateLiveData: LiveData<PlayerState> = state
@@ -49,7 +50,10 @@ class PlayerViewModel(private val url: String?, private val mediaPlayer: MediaPl
             }
             mediaPlayer.setOnCompletionListener {
                 timerJob?.cancel()
-                timer = "00:00"
+                timer = SimpleDateFormat(
+                    "mm:ss",
+                    Locale.getDefault()
+                ).format(0)
                 state.postValue(PlayerState.Prepared)
             }
         } catch (e: Exception) {
@@ -82,6 +86,7 @@ class PlayerViewModel(private val url: String?, private val mediaPlayer: MediaPl
     }
 
     private fun startTimer() {
+        timerJob?.cancel()
         timerJob = viewModelScope.launch {
             while (mediaPlayer.isPlaying) {
                 delay(TIME_CHEK_DELAY)
