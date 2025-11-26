@@ -1,37 +1,30 @@
 package com.practicum.playlistmaker.player.ui.view_model
 
 import android.media.MediaPlayer
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.lifecycle.viewModelScope
+import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.player.domain.model.PlayerState
 import com.practicum.playlistmaker.player.domain.model.PlayerState.Prepared
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PlayerViewModel(private val url: String?, private val mediaPlayer: MediaPlayer): ViewModel() {
     companion object {
-        private const val TIME_CHEK_DELAY = 250L
+        private const val TIME_CHEK_DELAY = 300L
     }
     private val state = MutableLiveData<PlayerState>()
     val stateLiveData: LiveData<PlayerState> = state
 
     private var timer = "00:00"
-    private val handler = Handler(Looper.getMainLooper())
 
-    private val setTimeRunnable = object : Runnable {
-        override fun run() {
-            if (mediaPlayer.isPlaying) {
-                setTime()
-                handler.postDelayed(this, TIME_CHEK_DELAY)
-            }
-        }
-    }
+    private var timerJob: Job? = null
+
     init {
         state.postValue(PlayerState.Default)
     }
@@ -56,8 +49,12 @@ class PlayerViewModel(private val url: String?, private val mediaPlayer: MediaPl
                 state.postValue(PlayerState.Prepared)
             }
             mediaPlayer.setOnCompletionListener {
+                timerJob?.cancel()
+                timer = SimpleDateFormat(
+                    "mm:ss",
+                    Locale.getDefault()
+                ).format(0)
                 state.postValue(PlayerState.Prepared)
-                resetTimer()
             }
         } catch (e: Exception) {
             state.postValue(PlayerState.Default)
@@ -67,12 +64,12 @@ class PlayerViewModel(private val url: String?, private val mediaPlayer: MediaPl
     private fun startPlayer() {
         mediaPlayer.start()
         state.postValue(PlayerState.Playing(timer))
-        handler.post(setTimeRunnable)
+        startTimer()
     }
 
     fun pausePlayer() {
         mediaPlayer.pause()
-        handler.removeCallbacks(setTimeRunnable)
+        timerJob?.cancel()
         state.postValue(PlayerState.Paused(timer))
     }
 
@@ -88,14 +85,19 @@ class PlayerViewModel(private val url: String?, private val mediaPlayer: MediaPl
         }
     }
 
-    fun resetTimer() {
-        handler.removeCallbacks(setTimeRunnable)
-        state.postValue(state.value?.setTimer("00:00") ?: PlayerState.Default)
+    private fun startTimer() {
+        timerJob?.cancel()
+        timerJob = viewModelScope.launch {
+            while (mediaPlayer.isPlaying) {
+                delay(TIME_CHEK_DELAY)
+                setTime()
+            }
+        }
     }
+
 
     override fun onCleared() {
         super.onCleared()
-        resetTimer()
         mediaPlayer.reset()
     }
 }
