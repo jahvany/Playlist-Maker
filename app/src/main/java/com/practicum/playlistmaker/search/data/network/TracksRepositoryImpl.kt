@@ -6,8 +6,12 @@ import com.practicum.playlistmaker.search.data.dto.iTunesResponse
 import com.practicum.playlistmaker.search.domain.api.TracksRepository
 import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.util.Resource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.withContext
 
 class TracksRepositoryImpl(
     private val networkClient: NetworkClient,
@@ -17,10 +21,7 @@ class TracksRepositoryImpl(
         val response = networkClient.doRequest(iTunesRequest(expression))
         when (response.resultCode) {
             200 -> {
-                val favoriteIds = appDatabase
-                .trackDao()
-                .getTrackIds()
-                .toSet()
+                val favoriteIds = appDatabase.trackDao().getTrackIds().first().toSet()
                 with(response as iTunesResponse) {
                     val data = response.results.map {
                         Track(

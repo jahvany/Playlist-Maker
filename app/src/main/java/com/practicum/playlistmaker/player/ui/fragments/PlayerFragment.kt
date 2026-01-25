@@ -4,9 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.TextView
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -14,10 +13,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentPlayerBinding
 import com.practicum.playlistmaker.player.domain.model.PlayerState
-import com.practicum.playlistmaker.player.domain.model.PlayerState.Default
-import com.practicum.playlistmaker.player.domain.model.PlayerState.Paused
-import com.practicum.playlistmaker.player.domain.model.PlayerState.Playing
-import com.practicum.playlistmaker.player.domain.model.PlayerState.Prepared
+import com.practicum.playlistmaker.player.domain.model.PlayerStatus
 import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.player.ui.view_model.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -27,16 +23,22 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 class PlayerFragment : Fragment() {
-    private lateinit var play: ImageButton
-    private lateinit var like: ImageButton
-    private lateinit var playTime: TextView
+
     private lateinit var binding: FragmentPlayerBinding
 
     private val viewModel: PlayerViewModel by viewModel {
-        parametersOf(requireArguments().getParcelable<Track>(ARGS_TRACK)?.previewUrl)
+        parametersOf(
+            requireArguments()
+                .getParcelable<Track>(ARGS_TRACK)
+                ?.previewUrl
+        )
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentPlayerBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -46,88 +48,86 @@ class PlayerFragment : Fragment() {
 
         val track = requireArguments().getParcelable<Track>(ARGS_TRACK)
 
-        binding.titlePlayer.setNavigationOnClickListener { findNavController().navigateUp() }
-
-        val cover = binding.cover
-        val radius = (8 * cover.context.resources.displayMetrics.density).roundToInt()
-
-        play = binding.playButton
-
-        playTime = binding.playTime
-
-        like = binding.likeButton
-
-        viewModel.stateLiveData.observe(viewLifecycleOwner) {
-            update(it)
+        binding.titlePlayer.setNavigationOnClickListener {
+            findNavController().navigateUp()
         }
 
-        track?.let {
-            Glide.with(cover)
-                .load(it.artworkUrl100.replaceAfterLast('/', "512x512bb.jpg"))
-                .placeholder(R.drawable.bigplaceholder)
-                .transform(RoundedCorners(radius))
-                .into(cover)
-            binding.trackName.text = it.trackName
-            binding.artistName.text = it.artistName
-            binding.timeNumber.text =
-                SimpleDateFormat("mm:ss", Locale.getDefault()).format(it.trackTimeMillis)
-            if (it.collectionName.isEmpty()) {
-                binding.albumGroup.visibility = View.GONE
-            } else {
-                binding.albumGroup.visibility = View.VISIBLE
-                binding.albumName.text = it.collectionName
-            }
-            if (it.releaseDate.isEmpty()) {
-                binding.yearGroup.visibility = View.GONE
-            } else {
-                binding.yearGroup.visibility = View.VISIBLE
-                binding.yearNumber.text = it.releaseDate.substring(0, 4)
-            }
-            binding.countryName.text = it.country
-            binding.genreName.text = it.primaryGenreName
+        setupTrackInfo(track)
+
+        viewModel.stateLiveData.observe(viewLifecycleOwner) { state ->
+            render(state)
         }
 
-        if (viewModel.stateLiveData.value == null ||
-            viewModel.stateLiveData.value is PlayerState.Default) {
-            viewModel.preparePlayer()
-        }
-
-        play.setOnClickListener {
+        binding.playButton.setOnClickListener {
             viewModel.playbackControl()
         }
 
-        track?.let { viewModel.setTrack(it) }
-
-        viewModel.observeIsFavorite().observe(viewLifecycleOwner) { isFavorite ->
-            like.setImageResource(
-                if (isFavorite) {
-                    R.drawable.likeyes
-                } else {
-                    R.drawable.likeno
-                }
-            )
-        }
-
-        like.setOnClickListener {
+        binding.likeButton.setOnClickListener {
             viewModel.onFavoriteClicked()
         }
-    }
 
-    fun update(state: PlayerState) {
-        playTime.text = state.timer
-        when (state) {
-            is Default -> play.animate().alpha(0.5f)
-            is Prepared-> {
-                play.animate().alpha(1f)
-                play.setImageResource(R.drawable.play)
-            }
-            is Playing -> play.setImageResource(R.drawable.pause)
-            is Paused -> play.setImageResource(R.drawable.play)
+        track?.let {
+            viewModel.setTrack(it)
+            viewModel.preparePlayer()
         }
     }
 
-    override fun onPause() {
-        super.onPause()
+    private fun setupTrackInfo(track: Track?) {
+        track ?: return
+
+        val radius = (8 * resources.displayMetrics.density).roundToInt()
+
+        Glide.with(binding.cover)
+            .load(track.artworkUrl100.replaceAfterLast('/', "512x512bb.jpg"))
+            .placeholder(R.drawable.bigplaceholder)
+            .transform(RoundedCorners(radius))
+            .into(binding.cover)
+
+        binding.trackName.text = track.trackName
+        binding.artistName.text = track.artistName
+        binding.timeNumber.text =
+            SimpleDateFormat("mm:ss", Locale.getDefault())
+                .format(track.trackTimeMillis)
+
+        binding.albumGroup.isVisible = track.collectionName.isNotEmpty()
+        binding.albumName.text = track.collectionName
+
+        binding.yearGroup.isVisible = track.releaseDate.isNotEmpty()
+        binding.yearNumber.text = track.releaseDate.take(4)
+
+        binding.countryName.text = track.country
+        binding.genreName.text = track.primaryGenreName
+    }
+
+    private fun render(state: PlayerState) {
+        binding.playTime.text = state.timer
+
+        when (state.status) {
+            PlayerStatus.DEFAULT -> {
+                binding.playButton.alpha = 0.5f
+            }
+
+            PlayerStatus.PREPARED -> {
+                binding.playButton.alpha = 1f
+                binding.playButton.setImageResource(R.drawable.play)
+            }
+
+            PlayerStatus.PLAYING -> {
+                binding.playButton.setImageResource(R.drawable.pause)
+            }
+
+            PlayerStatus.PAUSED -> {
+                binding.playButton.setImageResource(R.drawable.play)
+            }
+        }
+
+        binding.likeButton.setImageResource(
+            if (state.isFavorite) {
+                R.drawable.likeyes
+            } else {
+                R.drawable.likeno
+            }
+        )
     }
 
     companion object {

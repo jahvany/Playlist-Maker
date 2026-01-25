@@ -77,7 +77,7 @@ dependencies {
 
     // Glide
     implementation(libs.glide)
-    kapt(libs.glide.compiler) // заменили annotationProcessor на kapt
+    kapt(libs.glide.compiler)
 
     // Tests
     testImplementation(libs.junit)
