@@ -5,19 +5,26 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.media.domain.db.FavoriteInteractor
 import com.practicum.playlistmaker.player.domain.model.PlayerState
 import com.practicum.playlistmaker.player.domain.model.PlayerState.Prepared
+import com.practicum.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class PlayerViewModel(private val url: String?, private val mediaPlayer: MediaPlayer): ViewModel() {
+class PlayerViewModel(
+    private val url: String?,
+    private val mediaPlayer: MediaPlayer,
+    private val favoriteInteractor: FavoriteInteractor): ViewModel() {
     companion object {
         private const val TIME_CHEK_DELAY = 300L
     }
+    private lateinit var currentTrack: Track
+
+    private val isFavoriteLiveData = MutableLiveData<Boolean>()
     private val state = MutableLiveData<PlayerState>()
     val stateLiveData: LiveData<PlayerState> = state
 
@@ -95,9 +102,36 @@ class PlayerViewModel(private val url: String?, private val mediaPlayer: MediaPl
         }
     }
 
-
     override fun onCleared() {
         super.onCleared()
         mediaPlayer.reset()
+    }
+
+    fun observeIsFavorite(): LiveData<Boolean> = isFavoriteLiveData
+
+    fun setTrack(track: Track) {
+        viewModelScope.launch {
+
+            val favoriteIds = favoriteInteractor.getFavoriteTrackIds()
+            val isFav = favoriteIds.contains(track.trackId)
+
+            currentTrack = track.copy(isFavorite = isFav)
+            isFavoriteLiveData.postValue(currentTrack.isFavorite)
+        }
+    }
+
+    fun onFavoriteClicked(){
+        viewModelScope.launch {
+            if (!currentTrack.isFavorite) {
+                favoriteInteractor.addToFavoriteTracks(currentTrack)
+            } else {
+                favoriteInteractor.removeFromFavoriteTracks(currentTrack)
+            }
+
+            currentTrack = currentTrack.copy(isFavorite = !currentTrack.isFavorite)
+            isFavoriteLiveData.postValue(currentTrack.isFavorite)
+
+            state.postValue(state.value)
+        }
     }
 }

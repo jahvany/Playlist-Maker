@@ -2,6 +2,10 @@ package com.practicum.playlistmaker
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
+import com.practicum.playlistmaker.media.di.mediaDataModule
+import com.practicum.playlistmaker.media.di.mediaInteractorModule
+import com.practicum.playlistmaker.media.di.mediaRepositoryModule
+import com.practicum.playlistmaker.media.di.mediaViewModelModule
 import com.practicum.playlistmaker.player.di.playerViewModelModule
 import com.practicum.playlistmaker.search.di.searchDataModule
 import com.practicum.playlistmaker.search.di.searchInteractorModule
@@ -34,7 +38,12 @@ class App : Application() {
                 settingsInteractorModule,
                 settingsViewModelModule,
                 sharingDataModule,
-                sharingInteractorModule)
+                sharingInteractorModule,
+                mediaDataModule,
+                mediaRepositoryModule,
+                mediaInteractorModule,
+                mediaViewModelModule
+            )
         }
 
         val settingsInteractor: SettingsInteractor = getKoin().get()

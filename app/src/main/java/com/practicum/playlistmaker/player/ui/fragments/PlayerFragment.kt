@@ -28,6 +28,7 @@ import kotlin.math.roundToInt
 
 class PlayerFragment : Fragment() {
     private lateinit var play: ImageButton
+    private lateinit var like: ImageButton
     private lateinit var playTime: TextView
     private lateinit var binding: FragmentPlayerBinding
 
@@ -53,6 +54,8 @@ class PlayerFragment : Fragment() {
         play = binding.playButton
 
         playTime = binding.playTime
+
+        like = binding.likeButton
 
         viewModel.stateLiveData.observe(viewLifecycleOwner) {
             update(it)
@@ -91,6 +94,22 @@ class PlayerFragment : Fragment() {
 
         play.setOnClickListener {
             viewModel.playbackControl()
+        }
+
+        track?.let { viewModel.setTrack(it) }
+
+        viewModel.observeIsFavorite().observe(viewLifecycleOwner) { isFavorite ->
+            like.setImageResource(
+                if (isFavorite) {
+                    R.drawable.likeyes
+                } else {
+                    R.drawable.likeno
+                }
+            )
+        }
+
+        like.setOnClickListener {
+            viewModel.onFavoriteClicked()
         }
     }
 

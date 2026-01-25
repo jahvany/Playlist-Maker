@@ -5,7 +5,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.practicum.playlistmaker.media.ui.fragments.FragmentPlaylists
-import com.practicum.playlistmaker.media.ui.fragments.FragmentTracks
+import com.practicum.playlistmaker.media.ui.fragments.FragmentFavoriteTracks
 
 class MediaViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle)
     : FragmentStateAdapter(fragmentManager, lifecycle) {
@@ -16,7 +16,7 @@ class MediaViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecyc
 
     override fun createFragment(position: Int): Fragment {
         return when(position) {
-            0 -> FragmentTracks.newInstance(position + 1)
+            0 -> FragmentFavoriteTracks.newInstance(position + 1)
             else -> FragmentPlaylists.newInstance(position + 1)
         }
     }

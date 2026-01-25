@@ -39,28 +39,26 @@ class SearchViewModel(
     var textForSave = ""
 
     fun loadHistory() {
-        searchHistoryInteractor.getHistory(object : SearchHistoryInteractor.HistoryConsumer {
-            override fun consume(searchHistory: List<Track>) {
-                if (searchHistory.isNotEmpty()) {
-                    _state.postValue(SearchState.History(searchHistory))
-                } else {
-                    _state.postValue(SearchState.Empty)
-                }
-            }
-        })
+        viewModelScope.launch {
+            val history = searchHistoryInteractor.getHistory()
+            _state.postValue(
+                if (history.isEmpty()) SearchState.Empty
+                else SearchState.History(history)
+            )
+        }
     }
 
     fun saveTrack(track: Track) {
-        searchHistoryInteractor.getHistory(object : SearchHistoryInteractor.HistoryConsumer {
-            override fun consume(searchHistory: List<Track>) {
-                searchHistoryInteractor.saveToHistory(track)
-            }
-        })
+        viewModelScope.launch {
+            searchHistoryInteractor.saveToHistory(track) // suspend
+        }
     }
 
     fun clearHistory() {
-        searchHistoryInteractor.clearHistory()
-        _state.value = SearchState.History(emptyList())
+        viewModelScope.launch {
+            searchHistoryInteractor.clearHistory() // suspend
+            _state.postValue(SearchState.History(emptyList()))
+        }
     }
 
     fun search(text: String) {

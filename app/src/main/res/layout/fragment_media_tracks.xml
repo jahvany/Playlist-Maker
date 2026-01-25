@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fragment_media_tracks"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/activityLL">
 
+    <ProgressBar android:id="@+id/progressBar"
+        android:layout_marginTop="124dp"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/blue"
+        android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_height="0dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:visibility="gone"/>
     <ImageView
         android:id="@+id/nothingImage"
         android:layout_width="wrap_content"
