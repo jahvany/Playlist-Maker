@@ -43,24 +43,44 @@ android {
 }
 
 dependencies {
+    // Room
+    implementation(libs.room.runtime)
+    kapt(libs.room.compiler)
+    implementation(libs.room.ktx)
+
+    // AndroidX
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation("androidx.fragment:fragment-ktx:1.5.6")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
-    implementation(libs.view.page2)
-    implementation(libs.koin.android)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
+    // Lifecycle
+    implementation(libs.livedata)
+    implementation(libs.viewmodel)
+
+    // Koin
+    implementation(libs.koin.android)
+
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+
+    // ViewPager2
+    implementation(libs.view.page2)
+
+    // Retrofit & Gson
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+    // Glide
+    implementation(libs.glide)
+    kapt(libs.glide.compiler)
+
+    // Tests
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation(libs.glide)
-    annotationProcessor(libs.glide.compiler)
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-    implementation(libs.livedata)
-    implementation(libs.viewmodel)
 }

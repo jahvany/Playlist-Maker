@@ -14,7 +14,8 @@ retrofit = "2.9.0"
 lifecycle = "2.5.1"
 koin = "3.3.0"
 view-page2 = "1.0.0"
-
+room = "2.6.1"
+espressoCoreVersion = "3.7.0"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
@@ -32,6 +33,10 @@ livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", vers
 viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 view-page2 = {module = "androidx.viewpager2:viewpager2", version.ref = "view-page2" }
+room-runtime = {module = "androidx.room:room-runtime", version.ref = "room" }
+room-compiler = {module = "androidx.room:room-compiler", version.ref = "room" }
+room-ktx = {module = "androidx.room:room-ktx", version.ref = "room" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCoreVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

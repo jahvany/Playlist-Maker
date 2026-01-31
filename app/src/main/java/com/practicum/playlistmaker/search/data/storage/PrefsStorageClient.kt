@@ -1,9 +1,8 @@
 package com.practicum.playlistmaker.search.data.storage
 
-import android.content.Context
+
 import android.content.SharedPreferences
 import com.google.gson.Gson
-import com.practicum.playlistmaker.search.data.storage.StorageClient
 import java.lang.reflect.Type
 import androidx.core.content.edit
 
