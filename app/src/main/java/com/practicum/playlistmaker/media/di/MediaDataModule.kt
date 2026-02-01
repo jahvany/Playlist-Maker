@@ -8,6 +8,7 @@ import org.koin.dsl.module
 val mediaDataModule = module {
     single {
         Room.databaseBuilder(androidContext(), AppDatabase::class.java, "database.db")
+            .fallbackToDestructiveMigration()
             .build()
     }
 }

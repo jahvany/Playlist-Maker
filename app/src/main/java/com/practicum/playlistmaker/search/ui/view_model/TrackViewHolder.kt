@@ -18,8 +18,6 @@ class TrackViewHolder(parentView: View) : RecyclerView.ViewHolder(parentView) {
     private val artistName: TextView = parentView.findViewById(R.id.artistName)
     private val trackTime: TextView = parentView.findViewById(R.id.trackTime)
     private val cover = parentView.findViewById<ImageView>(R.id.cover)
-
-    val selectTrackArrow = parentView.findViewById<ImageView>(R.id.selectTrack)
     private val radius = (2 * cover.context.resources.displayMetrics.density).roundToInt()
 
     fun bind(track : Track) {
