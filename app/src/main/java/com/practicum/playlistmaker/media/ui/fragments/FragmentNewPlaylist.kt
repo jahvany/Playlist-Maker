@@ -103,11 +103,14 @@ class FragmentNewPlaylist : Fragment() {
                     val file = File(filePath, coverFileName)
                     val inputStream = requireContext().contentResolver.openInputStream(uri)
                     val outputStream = FileOutputStream(file)
-                    BitmapFactory
-                        .decodeStream(inputStream)
-                        .compress(Bitmap.CompressFormat.JPEG, 30, outputStream)
-                } else {
-                    Log.d("PhotoPicker", "No media selected")
+                    try {
+                        BitmapFactory
+                            .decodeStream(inputStream)
+                            .compress(Bitmap.CompressFormat.JPEG, 30, outputStream)
+                    } finally {
+                        inputStream?.close()
+                        outputStream.close()
+                    }
                 }
             }
 
@@ -126,10 +129,8 @@ class FragmentNewPlaylist : Fragment() {
                 listOfTracks = ""
             )
             viewModel.createPlaylist(newPlaylist)
-
-            findNavController().popBackStack()
-
             Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            findNavController().popBackStack()
         }
 
         requireActivity()

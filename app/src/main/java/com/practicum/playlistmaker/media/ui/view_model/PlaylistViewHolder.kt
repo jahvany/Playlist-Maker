@@ -35,8 +35,8 @@ class PlaylistViewHolder(parentView: View) : RecyclerView.ViewHolder(parentView)
 
         Glide.with(cover)
             .load(file)
-            .placeholder(R.drawable.placeholder_playlist)
-            .error(R.drawable.placeholder_playlist)
+            .placeholder(R.drawable.placeholder_playlist_holder)
+            .error(R.drawable.placeholder_playlist_holder)
             .transform(RoundedCorners(radius))
             .into(cover)
     }

@@ -7,8 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.media.domain.db.PlaylistInteractor
 import com.practicum.playlistmaker.media.domain.models.Playlist
 import com.practicum.playlistmaker.media.domain.models.PlaylistState
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class PlaylistViewModel(
