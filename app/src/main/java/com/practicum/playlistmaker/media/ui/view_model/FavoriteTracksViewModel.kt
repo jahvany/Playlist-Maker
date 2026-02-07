@@ -44,11 +44,11 @@ class FavoriteTracksViewModel(
         _state.postValue(state)
     }
 
-    private fun processResult(movies: List<Track>) {
-        if (movies.isEmpty()) {
+    private fun processResult(tracks: List<Track>) {
+        if (tracks.isEmpty()) {
             renderState(FavoriteState.Empty)
         } else {
-            renderState(FavoriteState.Content(movies))
+            renderState(FavoriteState.Content(tracks))
         }
     }
 

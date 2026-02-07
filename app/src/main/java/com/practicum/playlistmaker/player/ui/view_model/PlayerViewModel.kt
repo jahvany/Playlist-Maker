@@ -6,11 +6,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.media.domain.db.FavoriteInteractor
+import com.practicum.playlistmaker.media.domain.db.PlaylistInteractor
+import com.practicum.playlistmaker.media.domain.models.Playlist
+import com.practicum.playlistmaker.player.domain.model.AddToPlaylistResult
 import com.practicum.playlistmaker.player.domain.model.PlayerState
 import com.practicum.playlistmaker.player.domain.model.PlayerStatus
 import com.practicum.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -18,7 +22,8 @@ import java.util.Locale
 class PlayerViewModel(
     private val url: String?,
     private val mediaPlayer: MediaPlayer,
-    private val favoriteInteractor: FavoriteInteractor
+    private val favoriteInteractor: FavoriteInteractor,
+    private val playlistInteractor: PlaylistInteractor
 ) : ViewModel() {
 
     companion object {
@@ -29,6 +34,14 @@ class PlayerViewModel(
 
     private val _state = MutableLiveData(PlayerState())
     val stateLiveData: LiveData<PlayerState> = _state
+
+    private val _list = MutableLiveData<List<Playlist>>()
+
+    fun observeList(): LiveData<List<Playlist>> = _list
+
+    private val _addResult = MutableLiveData<AddToPlaylistResult>()
+
+    val addResult: LiveData<AddToPlaylistResult> = _addResult
 
     private var timerJob: Job? = null
 
@@ -125,4 +138,41 @@ class PlayerViewModel(
         super.onCleared()
         mediaPlayer.reset()
     }
+
+    fun getPlaylists() {
+        viewModelScope.launch {
+            viewModelScope.launch {
+                playlistInteractor
+                    .getPlaylists()
+                    .collect { playlists ->
+                        _list.postValue(playlists)
+                    }
+            }
+        }
+    }
+
+    fun addTrackToPlaylist(playlist: Playlist, trackId: Int) {
+        viewModelScope.launch {
+            val ids = playlist.listOfTracks
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotBlank() }
+
+            if (trackId.toString() in ids) {
+                _addResult.postValue(AddToPlaylistResult.AlreadyExists(playlist.name))
+                return@launch
+            }
+
+            val newIds = ids + trackId.toString()
+            val updatedPlaylist = playlist.copy(
+                listOfTracks = newIds.joinToString(","),
+                numbersOfTracks = newIds.size
+            )
+
+            playlistInteractor.updatePlaylist(updatedPlaylist.copy(id = playlist.id))
+
+            _addResult.postValue(AddToPlaylistResult.Added(playlist.name))
+        }
+    }
+
 }

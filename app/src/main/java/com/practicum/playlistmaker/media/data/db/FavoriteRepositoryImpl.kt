@@ -1,12 +1,10 @@
-package com.practicum.playlistmaker.media.data
+package com.practicum.playlistmaker.media.data.db
 
 import com.practicum.playlistmaker.media.data.converters.TrackDbConverter
-import com.practicum.playlistmaker.media.data.db.AppDatabase
 import com.practicum.playlistmaker.media.domain.db.FavoriteRepository
 import com.practicum.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlin.collections.map
 
 class FavoriteRepositoryImpl(
     private val appDatabase: AppDatabase,
@@ -35,4 +33,3 @@ class FavoriteRepositoryImpl(
         appDatabase.trackDao().getTrackIds()
 
 }
-

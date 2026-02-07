@@ -28,4 +28,16 @@
     <string name="newPlaylist">Новый плейлист</string>
     <string name="mediaTabTracks">Избранные треки</string>
     <string name="mediaTabPlaylist">Плейлисты</string>
+    <string name="playlistForm">Новый плейлист</string>
+    <string name="playlistFormName">Название*</string>
+    <string name="playlistFormDescription">Описание</string>
+    <string name="create">Создать</string>
+    <string name="dialogTitle">Завершить создание плейлиста?</string>
+    <string name="dialogMessage">Все несохраненные данные будут потеряны</string>
+    <string name="dialogCancel">Отмена</string>
+    <string name="dialogFinish">Завершить</string>
+    <string name="playlist_message">Плейлист %1$s создан</string>
+    <string name="add_to_playlist">Добавить в плейлист</string>
+    <string name="added_to_playlist">Добавлено в плейлист %1$s</string>
+    <string name="not_added_to_playlist">Трек уже добавлен в плейлист %1$s</string>
 </resources>
