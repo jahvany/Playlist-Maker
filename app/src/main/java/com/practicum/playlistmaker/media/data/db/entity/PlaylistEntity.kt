@@ -9,6 +9,6 @@ data class PlaylistEntity(
     val name: String,
     val cover: String,
     val descriptor: String,
-    var listOfTracks: String,
-    var numbersOfTracks: Int
+    val listOfTracks: String,
+    val numbersOfTracks: Int
 )

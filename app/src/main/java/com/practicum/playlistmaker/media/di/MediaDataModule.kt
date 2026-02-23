@@ -11,4 +11,8 @@ val mediaDataModule = module {
             .fallbackToDestructiveMigration()
             .build()
     }
+    single { get<AppDatabase>().trackPlaylistDao() }
+    single { get<AppDatabase>().playlistDao() }
+    single { get<AppDatabase>().trackDao()}
+
 }

@@ -13,7 +13,7 @@ import com.practicum.playlistmaker.media.data.db.entity.TrackPlaylistEntity
     entities = [TrackEntity::class,
         PlaylistEntity::class,
         TrackPlaylistEntity::class ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 

@@ -21,8 +21,8 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistRepository
         return playlistRepository.updatePlaylist(playlist)
     }
 
-    override suspend fun updateTracks(track : Track) {
-        return playlistRepository.updateTracks(track)
+    override suspend fun updateTracks(track : Track, playlistId: Int) {
+        return playlistRepository.updateTracks(track, playlistId)
     }
 
     override fun getTrackPlaylist(playlistId: Int): Flow<List<Track>> {
@@ -37,8 +37,8 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistRepository
         playlistRepository.deletePlaylist(id)
     }
 
-    override suspend fun deleteTrackFromPlaylist(trackId: Int) {
-        playlistRepository.deleteTrackFromPlaylist(trackId)
+    override suspend fun deleteTrackFromPlaylist(playlistId: Int, trackId: Int) {
+        playlistRepository.deleteTrackFromPlaylist(playlistId, trackId)
     }
 
 }

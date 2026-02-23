@@ -11,10 +11,8 @@ import kotlinx.coroutines.flow.Flow
 interface TrackPlaylistDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTrackToPlaylist(tracks: List<TrackPlaylistEntity>)
-
-    @Query("SELECT * FROM trackplaylist_table")
-    fun getTracks(): Flow<List<TrackPlaylistEntity>>
-
-    @Query("DELETE FROM trackplaylist_table WHERE trackId = :trackId")
-    suspend fun deleteTrack(trackId: Int)
+    @Query("SELECT * FROM trackplaylist_table WHERE playlistId = :playlistId ORDER BY id DESC")
+    fun getTracks(playlistId: Int): Flow<List<TrackPlaylistEntity>>
+    @Query("DELETE FROM trackplaylist_table WHERE playlistId = :playlistId AND trackId = :trackId")
+    suspend fun deleteTrack(playlistId: Int, trackId: Int)
 }

@@ -169,7 +169,7 @@ class PlayerViewModel(
             )
 
             playlistInteractor.updatePlaylist(updatedPlaylist.copy(id = playlist.id))
-            playlistInteractor.updateTracks(currentTrack)
+            playlistInteractor.updateTracks(currentTrack, playlist.id)
             _addResult.postValue(AddToPlaylistResult.Added(playlist.name))
         }
     }

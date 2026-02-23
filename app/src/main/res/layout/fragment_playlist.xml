@@ -183,6 +183,7 @@
                 android:id="@+id/coverPlaylist"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
+                android:scaleType="centerCrop"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent" />

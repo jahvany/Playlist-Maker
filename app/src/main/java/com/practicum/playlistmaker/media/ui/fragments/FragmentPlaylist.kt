@@ -119,6 +119,7 @@ class FragmentPlaylist: Fragment() {
             findNavController().navigateUp()
         }
 
+
         trackAdapter = TrackPlaylistAdapter(emptyList()) { track ->
             val dialog = MaterialAlertDialogBuilder(requireActivity())
                 .setTitle(getString(R.string.delete))
@@ -126,7 +127,7 @@ class FragmentPlaylist: Fragment() {
                     dialog.dismiss()
                 }
                 .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                    viewModel.deleteTrackFromPlaylist(track.trackId)
+                    viewModel.deleteTrackFromPlaylist(requireArguments().getInt(ARGS_PLAYLIST_ID),track.trackId)
                 }
                 .create()
             dialog.setOnShowListener {
