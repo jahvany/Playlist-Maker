@@ -72,15 +72,11 @@
         android:name="com.practicum.playlistmaker.media.ui.fragments.FragmentPlaylist"
         android:label="FragmentPlaylist" >
         <action
-            android:id="@+id/action_fragmentPlaylist_to_fragmentEditPlaylist"
-            app:destination="@id/fragmentEditPlaylist"
+            android:id="@+id/action_fragmentPlaylist_to_fragmentNewPlaylist"
+            app:destination="@id/fragmentNewPlaylist"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right"/>
     </fragment>
-    <fragment
-        android:id="@+id/fragmentEditPlaylist"
-        android:name="com.practicum.playlistmaker.media.ui.fragments.FragmentEditPlaylist"
-        android:label="FragmentEditPlaylist" />
 </navigation>

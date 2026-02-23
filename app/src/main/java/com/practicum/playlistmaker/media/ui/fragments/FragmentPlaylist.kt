@@ -1,5 +1,6 @@
 package com.practicum.playlistmaker.media.ui.fragments
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Environment
 import android.view.LayoutInflater
@@ -12,13 +13,17 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestListener
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.practicum.playlistmaker.R
@@ -32,6 +37,7 @@ import org.koin.core.parameter.parametersOf
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
+import javax.sql.DataSource
 import kotlin.getValue
 import kotlin.math.roundToInt
 
@@ -61,10 +67,6 @@ class FragmentPlaylist: Fragment() {
     private lateinit var bottomSheetContainer: LinearLayout
 
     private lateinit var bottomSheetSetting: LinearLayout
-
-    lateinit var confirmDialog: MaterialAlertDialogBuilder
-
-    lateinit var deleteDialog: MaterialAlertDialogBuilder
 
     private lateinit var playlistName: TextView
     private lateinit var tracksNumber: TextView
@@ -118,13 +120,19 @@ class FragmentPlaylist: Fragment() {
         }
 
         trackAdapter = TrackPlaylistAdapter(emptyList()) { track ->
-            confirmDialog = MaterialAlertDialogBuilder(requireActivity())
+            val dialog = MaterialAlertDialogBuilder(requireActivity())
                 .setTitle(getString(R.string.delete))
-                .setNeutralButton(getString(R.string.no)) { dialog, which ->
-                }.setNegativeButton(getString(R.string.yes)) { dialog, which ->
+                .setNegativeButton(getString(R.string.no)) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .setPositiveButton(getString(R.string.yes)) { _, _ ->
                     viewModel.deleteTrackFromPlaylist(track.trackId)
                 }
-            confirmDialog.show()
+                .create()
+            dialog.setOnShowListener {
+                dialog.window?.setDimAmount(0.5f)
+            }
+            dialog.show()
         }
 
         recyclerView.adapter = trackAdapter
@@ -141,17 +149,7 @@ class FragmentPlaylist: Fragment() {
 
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-
-                when (newState) {
-                    BottomSheetBehavior.STATE_COLLAPSED -> {
-                        binding.overlay.visibility = View.GONE
-                    }
-                    else -> {
-                        binding.overlay.visibility = View.VISIBLE
-                    }
-                }
             }
-
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
 
@@ -201,18 +199,24 @@ class FragmentPlaylist: Fragment() {
         }
 
         editPlaylist.setOnClickListener {
-            findNavController().navigate(R.id.action_fragmentPlaylist_to_fragmentEditPlaylist,
-                FragmentEditPlaylist.createArgs(viewModel.currentPlaylist))
+            findNavController().navigate(R.id.action_fragmentPlaylist_to_fragmentNewPlaylist,
+                FragmentNewPlaylist.createArgs(viewModel.currentPlaylist))
         }
         deletePlaylist.setOnClickListener {
-            deleteDialog = MaterialAlertDialogBuilder(requireActivity())
+            val dialog = MaterialAlertDialogBuilder(requireActivity())
                 .setTitle(getString(R.string.delete_message, name.text))
-                .setNeutralButton(getString(R.string.no)) { dialog, which ->
-                }.setNegativeButton(getString(R.string.yes)) { dialog, which ->
+                .setNegativeButton(getString(R.string.no)) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .setPositiveButton(getString(R.string.yes)) { _, _ ->
                     viewModel.deletePlaylist()
                     findNavController().navigateUp()
                 }
-            deleteDialog.show()
+                .create()
+            dialog.setOnShowListener {
+                dialog.window?.setDimAmount(0.5f)
+            }
+            dialog.show()
         }
     }
 
@@ -278,6 +282,30 @@ class FragmentPlaylist: Fragment() {
             .load(file)
             .placeholder(R.drawable.placeholder_playlist_holder)
             .error(R.drawable.placeholder_playlist_holder)
+            .listener(object : RequestListener<Drawable> {
+
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: com.bumptech.glide.request.target.Target<Drawable?>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    cover.foreground = null
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: com.bumptech.glide.request.target.Target<Drawable?>?,
+                    dataSource: com.bumptech.glide.load.DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    cover.foreground =
+                        ContextCompat.getDrawable(requireContext(), R.drawable.white_frame)
+                    return false
+                }
+            })
             .into(cover)
 
         val radius = (2 * coverMini.context.resources.displayMetrics.density).roundToInt()
@@ -292,6 +320,19 @@ class FragmentPlaylist: Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+    override fun onResume() {
+        super.onResume()
+        requireActivity()
+            .findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+            ?.visibility = View.GONE
+    }
+
+    override fun onStop() {
+        super.onStop()
+        requireActivity()
+            .findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+            ?.visibility = View.VISIBLE
     }
 
     companion object {

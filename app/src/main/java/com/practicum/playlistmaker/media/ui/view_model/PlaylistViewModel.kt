@@ -65,22 +65,19 @@ class PlaylistViewModel(
                 }
         }
     }
-
     fun deleteTrackFromPlaylist(trackId: Int) {
         val playlist = currentPlaylist ?: return
         viewModelScope.launch {
+            playlistInteractor.deleteTrackFromPlaylist(trackId)
             val ids = playlist.listOfTracks
                 .split(",")
                 .map { it.trim() }
-                .filter { it.isNotBlank() }
-
-            val newIds = ids.filter { it != trackId.toString() }
+                .filter { it.isNotBlank() && it != trackId.toString() }
 
             val updatedPlaylist = playlist.copy(
-                listOfTracks = newIds.joinToString(","),
-                numbersOfTracks = newIds.size
+                listOfTracks = ids.joinToString(","),
+                numbersOfTracks = ids.size
             )
-
             playlistInteractor.updatePlaylist(updatedPlaylist)
             currentPlaylist = updatedPlaylist
             loadTracks()

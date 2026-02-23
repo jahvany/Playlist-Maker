@@ -78,7 +78,6 @@
         android:textSize="16sp"
         android:fontFamily="@font/ys_display_medium"
         android:textAllCaps="false"
-        android:enabled="false"
         android:background="@drawable/background_newplaylist_button"
         app:backgroundTint="@color/color_button_selector"/>
 

@@ -44,7 +44,6 @@ class PlaylistRepositoryImpl(
             .getPlaylistById(playlistId)
             .filterNotNull()
             .flatMapLatest { playlistEntity ->
-
                 val ids = playlistEntity.listOfTracks
                     .split(",")
                     .filter { it.isNotBlank() }
@@ -56,6 +55,7 @@ class PlaylistRepositoryImpl(
                         entities
                             .filter { it.trackId in ids }
                             .map { trackDbConverter.map(it) }
+                            .reversed()
                     }
             }
     }
@@ -71,5 +71,9 @@ class PlaylistRepositoryImpl(
 
     override suspend fun deletePlaylist(id: Int) {
         appDatabase.playlistDao().deletePlaylistById(id)
+    }
+
+    override suspend fun deleteTrackFromPlaylist(trackId: Int) {
+        appDatabase.trackPlaylistDao().deleteTrack(trackId)
     }
 }
