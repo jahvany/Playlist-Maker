@@ -160,7 +160,7 @@ class PlayerFragment : Fragment() {
 
         Glide.with(binding.cover)
             .load(track.artworkUrl100.replaceAfterLast('/', "512x512bb.jpg"))
-            .placeholder(R.drawable.bigplaceholder)
+            .placeholder(R.drawable.placeholder)
             .transform(RoundedCorners(radius))
             .into(binding.cover)
 

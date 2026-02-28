@@ -15,13 +15,13 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentMediaPlaylistsBinding
-import com.practicum.playlistmaker.media.domain.models.PlaylistState
+import com.practicum.playlistmaker.media.domain.models.MediaPlaylistState
 import com.practicum.playlistmaker.media.ui.view_model.PlaylistAdapter
-import com.practicum.playlistmaker.media.ui.view_model.PlaylistViewModel
+import com.practicum.playlistmaker.media.ui.view_model.MediaPlaylistsViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.getValue
 
-class FragmentPlaylists : Fragment() {
+class FragmentMediaPlaylists : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var playlistAdapter: PlaylistAdapter
@@ -29,7 +29,7 @@ class FragmentPlaylists : Fragment() {
     private lateinit var nothingImage: ImageView
     private lateinit var nothingText: TextView
 
-    private val viewModel: PlaylistViewModel by viewModel()
+    private val viewModel: MediaPlaylistsViewModel by viewModel()
 
     private var _binding: FragmentMediaPlaylistsBinding? = null
     private val binding get() = _binding!!
@@ -57,7 +57,12 @@ class FragmentPlaylists : Fragment() {
 
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
-        playlistAdapter = PlaylistAdapter(emptyList())
+        playlistAdapter = PlaylistAdapter(emptyList(), onItemClick = { playlist ->
+            if (viewModel.clickDebounce()) {
+                findNavController().navigate(R.id.action_mediaFragment_to_fragmentPlaylist,
+                    FragmentPlaylist.createArgs(playlist))
+            }
+        })
 
         recyclerView.adapter = playlistAdapter
 
@@ -72,18 +77,18 @@ class FragmentPlaylists : Fragment() {
         }
     }
 
-    private fun render(state: PlaylistState) {
-        progressBar.isVisible = state is PlaylistState.Loading
-        nothingImage.isVisible = state is PlaylistState.Empty
-        nothingText.isVisible = state is PlaylistState.Empty
-        recyclerView.isVisible = state is PlaylistState.Content
+    private fun render(state: MediaPlaylistState) {
+        progressBar.isVisible = state is MediaPlaylistState.Loading
+        nothingImage.isVisible = state is MediaPlaylistState.Empty
+        nothingText.isVisible = state is MediaPlaylistState.Empty
+        recyclerView.isVisible = state is MediaPlaylistState.Content
 
         when (state) {
-            is PlaylistState.Loading, PlaylistState.Empty  -> {
+            is MediaPlaylistState.Loading, MediaPlaylistState.Empty  -> {
                 playlistAdapter.updatePlaylists(emptyList())
             }
 
-            is PlaylistState.Content -> {
+            is MediaPlaylistState.Content -> {
                 playlistAdapter.updatePlaylists(state.playlists)
             }
         }
@@ -96,6 +101,6 @@ class FragmentPlaylists : Fragment() {
     }
 
     companion object {
-        fun newInstance(number: Int) = FragmentPlaylists()
+        fun newInstance(number: Int) = FragmentMediaPlaylists()
     }
 }

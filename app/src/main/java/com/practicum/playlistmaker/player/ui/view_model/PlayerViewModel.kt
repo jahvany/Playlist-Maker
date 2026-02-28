@@ -14,7 +14,6 @@ import com.practicum.playlistmaker.player.domain.model.PlayerStatus
 import com.practicum.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -170,7 +169,7 @@ class PlayerViewModel(
             )
 
             playlistInteractor.updatePlaylist(updatedPlaylist.copy(id = playlist.id))
-
+            playlistInteractor.updateTracks(currentTrack, playlist.id)
             _addResult.postValue(AddToPlaylistResult.Added(playlist.name))
         }
     }

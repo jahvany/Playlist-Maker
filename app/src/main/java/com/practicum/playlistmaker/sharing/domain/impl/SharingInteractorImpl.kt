@@ -8,8 +8,6 @@ class SharingInteractorImpl(
     private val externalNavigator: ExternalNavigator
 ) : SharingInteractor {
 
-
-
     override fun shareApp(appLink:String) {
         externalNavigator.shareLink(appLink)
     }
