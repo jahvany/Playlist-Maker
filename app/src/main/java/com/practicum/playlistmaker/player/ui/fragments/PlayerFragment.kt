@@ -190,16 +190,10 @@ class PlayerFragment : Fragment() {
 
             PlayerStatus.PREPARED -> {
                 binding.playButton.alpha = 1f
-                binding.playButton.setImageResource(R.drawable.play)
             }
 
-            PlayerStatus.PLAYING -> {
-                binding.playButton.setImageResource(R.drawable.pause)
-            }
-
-            PlayerStatus.PAUSED -> {
-                binding.playButton.setImageResource(R.drawable.play)
-            }
+            PlayerStatus.PLAYING -> binding.playButton.setPlaying(true)
+            else -> binding.playButton.setPlaying(false)
         }
 
         binding.likeButton.setImageResource(
