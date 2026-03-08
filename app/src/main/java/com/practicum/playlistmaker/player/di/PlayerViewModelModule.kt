@@ -10,6 +10,6 @@ val playerViewModelModule = module {
     single { MediaPlayer() }
 
     viewModel {(url: String?) ->
-        PlayerViewModel(url, get(), get(), get())
+        PlayerViewModel(url, get(), get())
     }
 }
