@@ -1,9 +1,12 @@
 package com.practicum.playlistmaker.player.ui.fragments
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.view.LayoutInflater
@@ -13,6 +16,8 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -69,7 +74,6 @@ class PlayerFragment : Fragment() {
             controller = binder.getController()
 
             viewModel.bindService(controller!!)
-
             track?.let {
                 viewModel.setTrack(it)
             }
@@ -79,6 +83,16 @@ class PlayerFragment : Fragment() {
             controller = null
         }
     }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+        } else {
+            Toast.makeText(requireContext(), getString(R.string.noNotification), Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -91,12 +105,11 @@ class PlayerFragment : Fragment() {
         return binding.root
     }
 
+
     override fun onStart() {
         super.onStart()
         val intent = Intent(requireContext(), PlayerService::class.java)
-
         requireContext().startService(intent)
-
         requireContext().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
@@ -116,6 +129,16 @@ class PlayerFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
 
         track = requireArguments().getParcelable(ARGS_TRACK)
 
