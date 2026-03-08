@@ -26,12 +26,6 @@ import java.util.Locale
 
 class PlayerService : Service(), PlayerController {
 
-    companion object {
-        const val CHANNEL_ID = "player_channel"
-        const val NOTIFICATION_ID = 1
-        private const val TIME_CHECK_DELAY = 300L
-    }
-
     private val binder = PlayerBinder()
 
     private val mediaPlayer = MediaPlayer()
@@ -44,6 +38,10 @@ class PlayerService : Service(), PlayerController {
 
     private val _stateFlow = MutableStateFlow(PlayerState())
     override val stateFlow: StateFlow<PlayerState> get() = _stateFlow
+
+    private val dateFormat by lazy {
+        SimpleDateFormat("mm:ss", Locale.getDefault())
+    }
 
     private fun updateState(block: PlayerState.() -> PlayerState) {
         _stateFlow.value = _stateFlow.value.block()
@@ -86,7 +84,7 @@ class PlayerService : Service(), PlayerController {
                 updateState {
                     copy(
                         status = PlayerStatus.PREPARED,
-                        timer = "00:00"
+                        timer = getString(R.string.zeroTime)
                     )
                 }
 
@@ -126,13 +124,23 @@ class PlayerService : Service(), PlayerController {
     }
 
     private fun startTimer() {
+
         timerJob?.cancel()
+
         timerJob = serviceScope.launch {
+
             while (mediaPlayer.isPlaying) {
+
                 delay(TIME_CHECK_DELAY)
-                val time = SimpleDateFormat("mm:ss", Locale.getDefault())
-                    .format(mediaPlayer.currentPosition)
-                updateState { copy(status = PlayerStatus.PLAYING, timer = time) }
+
+                val time = dateFormat.format(mediaPlayer.currentPosition)
+
+                updateState {
+                    copy(
+                        status = PlayerStatus.PLAYING,
+                        timer = time
+                    )
+                }
             }
         }
     }
@@ -142,7 +150,7 @@ class PlayerService : Service(), PlayerController {
         if (mediaPlayer.isPlaying) mediaPlayer.stop()
         mediaPlayer.reset()
 
-        updateState { copy(status = PlayerStatus.DEFAULT, timer = "00:00") }
+        updateState { copy(status = PlayerStatus.DEFAULT, timer = getString(R.string.zeroTime)) }
 
         hideNotification()
         stopSelf()
@@ -191,5 +199,10 @@ class PlayerService : Service(), PlayerController {
         serviceScope.cancel()
 
         super.onDestroy()
+    }
+    companion object {
+        const val CHANNEL_ID = "player_channel"
+        const val NOTIFICATION_ID = 1
+        private const val TIME_CHECK_DELAY = 300L
     }
 }

@@ -1,6 +1,5 @@
 package com.practicum.playlistmaker.player.ui.view_model
 
-import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
