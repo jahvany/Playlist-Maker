@@ -1,12 +1,23 @@
 package com.practicum.playlistmaker.player.ui.fragments
 
+import android.Manifest
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -23,6 +34,8 @@ import com.practicum.playlistmaker.player.domain.model.PlayerStatus
 import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.player.ui.view_model.PlayerViewModel
 import com.practicum.playlistmaker.player.ui.view_model.PlaylistBottomAdapter
+import com.practicum.playlistmaker.util.PlayerController
+import com.practicum.playlistmaker.util.PlayerService
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.text.SimpleDateFormat
@@ -34,12 +47,13 @@ class PlayerFragment : Fragment() {
     private lateinit var binding: FragmentPlayerBinding
 
     private lateinit var bottomSheetContainer: LinearLayout
-
     private lateinit var recyclerView: RecyclerView
-
     private lateinit var playlistAdapter: PlaylistBottomAdapter
-
     private lateinit var newPlaylist: Button
+
+    private var track: Track? = null
+
+    private var controller: PlayerController? = null
 
     private val viewModel: PlayerViewModel by viewModel {
         parametersOf(
@@ -49,28 +63,101 @@ class PlayerFragment : Fragment() {
         )
     }
 
+    private val serviceConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(
+            name: ComponentName?,
+            service: IBinder?
+        ) {
+
+            val binder = service as PlayerService.PlayerBinder
+            controller = binder.getController()
+
+            viewModel.bindService(controller!!)
+            track?.let {
+                viewModel.setTrack(it)
+            }
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            controller = null
+        }
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+        } else {
+            Toast.makeText(requireContext(), getString(R.string.noNotification), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         binding = FragmentPlayerBinding.inflate(inflater, container, false)
+
         return binding.root
     }
 
+
+    override fun onStart() {
+        super.onStart()
+        val intent = Intent(requireContext(), PlayerService::class.java)
+        requireContext().startService(intent)
+        requireContext().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        requireContext().unbindService(serviceConnection)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.appBackground()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.appForeground()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
-        val track = requireArguments().getParcelable<Track>(ARGS_TRACK)
-
-        binding.titlePlayer.setNavigationOnClickListener {
-            findNavController().navigateUp()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
+
+        track = requireArguments().getParcelable(ARGS_TRACK)
 
         setupTrackInfo(track)
 
-        viewModel.stateLiveData.observe(viewLifecycleOwner) { state ->
-            render(state)
+        viewModel.stateLiveData.observe(viewLifecycleOwner) {
+            render(it)
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                viewModel.stopPlayer()
+                findNavController().navigateUp()
+            }
+        })
+
+        binding.titlePlayer.setNavigationOnClickListener {
+            viewModel.stopPlayer()
+            findNavController().navigateUp()
         }
 
         binding.playButton.setOnClickListener {
@@ -81,10 +168,12 @@ class PlayerFragment : Fragment() {
             viewModel.onFavoriteClicked()
         }
 
-        track?.let {
-            viewModel.setTrack(it)
-            viewModel.preparePlayer()
-        }
+        setupBottomSheet(track)
+
+        observePlaylists()
+    }
+
+    private fun setupBottomSheet(track: Track?) {
 
         bottomSheetContainer = binding.bottomsheet
 
@@ -92,32 +181,37 @@ class PlayerFragment : Fragment() {
             state = BottomSheetBehavior.STATE_HIDDEN
         }
 
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-        override fun onStateChanged(bottomSheet: View, newState: Int) {
+        bottomSheetBehavior.addBottomSheetCallback(
+            object : BottomSheetBehavior.BottomSheetCallback() {
 
-            when (newState) {
-                BottomSheetBehavior.STATE_HIDDEN -> {
-                    binding.overlay.visibility = View.GONE
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+
+                    when (newState) {
+                        BottomSheetBehavior.STATE_HIDDEN -> {
+                            binding.overlay.visibility = View.GONE
+                        }
+
+                        else -> {
+                            binding.overlay.visibility = View.VISIBLE
+                        }
+                    }
                 }
-                else -> {
-                    binding.overlay.visibility = View.VISIBLE
-                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {}
             }
-        }
-
-        override fun onSlide(bottomSheet: View, slideOffset: Float) {}
-    })
+        )
 
         binding.addToPlaylistButton.setOnClickListener {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
         newPlaylist = binding.newPlaylist
-
         recyclerView = binding.recyclerView
 
         playlistAdapter = PlaylistBottomAdapter(emptyList()) { playlist ->
+
             val trackId = track?.trackId ?: return@PlaylistBottomAdapter
+
             viewModel.addTrackToPlaylist(playlist, trackId)
         }
 
@@ -125,27 +219,45 @@ class PlayerFragment : Fragment() {
 
         viewModel.getPlaylists()
 
+        newPlaylist.setOnClickListener {
+
+            findNavController().navigate(
+                R.id.action_playerFragment_to_fragmentNewPlaylist
+            )
+        }
+    }
+
+    private fun observePlaylists() {
+
         viewModel.observeList().observe(viewLifecycleOwner) {
+
             playlistAdapter.updatePlaylists(it)
         }
 
-        newPlaylist.setOnClickListener {
-            findNavController().navigate(R.id.action_playerFragment_to_fragmentNewPlaylist)
-        }
         viewModel.addResult.observe(viewLifecycleOwner) { result ->
+
             when (result) {
+
                 is AddToPlaylistResult.Added -> {
+
                     Toast.makeText(
                         requireContext(),
-                        getString(R.string.added_to_playlist, result.playlistName),
+                        getString(
+                            R.string.added_to_playlist,
+                            result.playlistName
+                        ),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
 
                 is AddToPlaylistResult.AlreadyExists -> {
+
                     Toast.makeText(
                         requireContext(),
-                        getString(R.string.not_added_to_playlist, result.playlistName),
+                        getString(
+                            R.string.not_added_to_playlist,
+                            result.playlistName
+                        ),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -154,6 +266,7 @@ class PlayerFragment : Fragment() {
     }
 
     private fun setupTrackInfo(track: Track?) {
+
         track ?: return
 
         val radius = (8 * resources.displayMetrics.density).roundToInt()
@@ -166,6 +279,7 @@ class PlayerFragment : Fragment() {
 
         binding.trackName.text = track.trackName
         binding.artistName.text = track.artistName
+
         binding.timeNumber.text =
             SimpleDateFormat("mm:ss", Locale.getDefault())
                 .format(track.trackTimeMillis)
@@ -181,9 +295,11 @@ class PlayerFragment : Fragment() {
     }
 
     private fun render(state: PlayerState) {
+
         binding.playTime.text = state.timer
 
         when (state.status) {
+
             PlayerStatus.DEFAULT -> {
                 binding.playButton.alpha = 0.5f
             }
@@ -192,8 +308,13 @@ class PlayerFragment : Fragment() {
                 binding.playButton.alpha = 1f
             }
 
-            PlayerStatus.PLAYING -> binding.playButton.setPlaying(true)
-            else -> binding.playButton.setPlaying(false)
+            PlayerStatus.PLAYING -> {
+                binding.playButton.setPlaying(true)
+            }
+
+            else -> {
+                binding.playButton.setPlaying(false)
+            }
         }
 
         binding.likeButton.setImageResource(
@@ -206,6 +327,7 @@ class PlayerFragment : Fragment() {
     }
 
     companion object {
+
         private const val ARGS_TRACK = "track"
 
         fun createArgs(track: Track): Bundle =

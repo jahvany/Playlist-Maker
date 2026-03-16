@@ -1,6 +1,5 @@
 package com.practicum.playlistmaker.player.ui.view_model
 
-import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,166 +11,148 @@ import com.practicum.playlistmaker.player.domain.model.AddToPlaylistResult
 import com.practicum.playlistmaker.player.domain.model.PlayerState
 import com.practicum.playlistmaker.player.domain.model.PlayerStatus
 import com.practicum.playlistmaker.search.domain.models.Track
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import com.practicum.playlistmaker.util.PlayerController
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class PlayerViewModel(
     private val url: String?,
-    private val mediaPlayer: MediaPlayer,
     private val favoriteInteractor: FavoriteInteractor,
     private val playlistInteractor: PlaylistInteractor
 ) : ViewModel() {
 
-    companion object {
-        private const val TIME_CHECK_DELAY = 300L
-    }
+    private var controller: PlayerController? = null
 
-    private lateinit var currentTrack: Track
+    private var currentTrack: Track? = null
 
     private val _state = MutableLiveData(PlayerState())
     val stateLiveData: LiveData<PlayerState> = _state
 
     private val _list = MutableLiveData<List<Playlist>>()
-
     fun observeList(): LiveData<List<Playlist>> = _list
 
     private val _addResult = MutableLiveData<AddToPlaylistResult>()
-
     val addResult: LiveData<AddToPlaylistResult> = _addResult
 
-    private var timerJob: Job? = null
-
-    fun preparePlayer() {
-        if (url.isNullOrEmpty()) return
-
-        try {
-            mediaPlayer.reset()
-            mediaPlayer.setDataSource(url)
-            mediaPlayer.prepareAsync()
-
-            mediaPlayer.setOnPreparedListener {
-                updateState { copy(status = PlayerStatus.PREPARED) }
-            }
-
-            mediaPlayer.setOnCompletionListener {
-                timerJob?.cancel()
-                updateState {
-                    copy(
-                        status = PlayerStatus.PREPARED,
-                        timer = "00:00"
-                    )
-                }
-            }
-        } catch (e: Exception) {
-            updateState { copy(status = PlayerStatus.DEFAULT) }
-        }
-    }
-
-    fun playbackControl() {
-        when (_state.value?.status) {
-            PlayerStatus.PLAYING -> pausePlayer()
-            PlayerStatus.PREPARED, PlayerStatus.PAUSED -> startPlayer()
-            else -> Unit
-        }
-    }
-
-    private fun startPlayer() {
-        mediaPlayer.start()
-        updateState { copy(status = PlayerStatus.PLAYING) }
-        startTimer()
-    }
-
-    private fun pausePlayer() {
-        mediaPlayer.pause()
-        timerJob?.cancel()
-        updateState { copy(status = PlayerStatus.PAUSED) }
-    }
-
-    private fun startTimer() {
-        timerJob?.cancel()
-        timerJob = viewModelScope.launch {
-            while (mediaPlayer.isPlaying) {
-                delay(TIME_CHECK_DELAY)
-                val time = SimpleDateFormat(
-                    "mm:ss",
-                    Locale.getDefault()
-                ).format(mediaPlayer.currentPosition)
-
-                updateState { copy(timer = time) }
+    fun bindService(controller: PlayerController) {
+        this.controller = controller
+        viewModelScope.launch {
+            controller.stateFlow.collect { playerState ->
+                _state.postValue(playerState.copy(isFavorite = _state.value?.isFavorite ?: false))
             }
         }
     }
 
     fun setTrack(track: Track) {
+        val currentState = controller?.getCurrentState()
+
+        if (currentTrack?.trackId == track.trackId &&
+            currentState?.status != PlayerStatus.DEFAULT) {
+            return
+        }
+
         viewModelScope.launch {
-            favoriteInteractor.getFavoriteTrackIds().collect { ids ->
-                val isFav = track.trackId in ids
-                currentTrack = track.copy(isFavorite = isFav)
-                updateState { copy(isFavorite = isFav) }
+            val ids = favoriteInteractor.getFavoriteTrackIds().first()
+            val isFav = track.trackId in ids
+
+            val trackToSet = track.copy(isFavorite = isFav)
+            currentTrack = trackToSet
+
+            updateState { copy(isFavorite = isFav) }
+
+            controller?.setTrack(trackToSet)
+
+            if (currentState?.status == PlayerStatus.DEFAULT) {
+                controller?.prepare(url)
             }
         }
+    }
+
+    fun playbackControl() {
+        controller?.playbackControl()
+    }
+
+    fun appBackground() {
+        if (_state.value?.status == PlayerStatus.PLAYING) {
+            controller?.showNotification()
+        }
+    }
+
+    fun appForeground() {
+        controller?.hideNotification()
+    }
+
+    fun stopPlayer() {
+        controller?.stopPlayer()
     }
 
     fun onFavoriteClicked() {
+        val track = currentTrack ?: return
         viewModelScope.launch {
-            if (currentTrack.isFavorite) {
-                favoriteInteractor.removeFromFavoriteTracks(currentTrack)
+
+            if (track.isFavorite) {
+                favoriteInteractor.removeFromFavoriteTracks(track)
             } else {
-                favoriteInteractor.addToFavoriteTracks(currentTrack)
+                favoriteInteractor.addToFavoriteTracks(track)
             }
 
-            currentTrack = currentTrack.copy(isFavorite = !currentTrack.isFavorite)
-            updateState { copy(isFavorite = currentTrack.isFavorite) }
+            currentTrack = track.copy(
+                isFavorite = !track.isFavorite
+            )
+
+            updateState { copy(isFavorite = track.isFavorite) }
         }
     }
 
-
-    private fun updateState(block: PlayerState.() -> PlayerState) {
-        _state.value = _state.value?.block()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        mediaPlayer.reset()
-    }
-
     fun getPlaylists() {
+
         viewModelScope.launch {
-            viewModelScope.launch {
-                playlistInteractor
-                    .getPlaylists()
-                    .collect { playlists ->
-                        _list.postValue(playlists)
-                    }
-            }
+
+            playlistInteractor
+                .getPlaylists()
+                .collect {
+
+                    _list.postValue(it)
+                }
         }
     }
 
     fun addTrackToPlaylist(playlist: Playlist, trackId: Int) {
+        val track = currentTrack ?: return
         viewModelScope.launch {
+
             val ids = playlist.listOfTracks
                 .split(",")
                 .map { it.trim() }
                 .filter { it.isNotBlank() }
 
             if (trackId.toString() in ids) {
-                _addResult.postValue(AddToPlaylistResult.AlreadyExists(playlist.name))
+
+                _addResult.postValue(
+                    AddToPlaylistResult.AlreadyExists(playlist.name)
+                )
+
                 return@launch
             }
 
             val newIds = ids + trackId.toString()
+
             val updatedPlaylist = playlist.copy(
                 listOfTracks = newIds.joinToString(","),
                 numbersOfTracks = newIds.size
             )
 
-            playlistInteractor.updatePlaylist(updatedPlaylist.copy(id = playlist.id))
-            playlistInteractor.updateTracks(currentTrack, playlist.id)
-            _addResult.postValue(AddToPlaylistResult.Added(playlist.name))
+            playlistInteractor.updatePlaylist(updatedPlaylist)
+
+            playlistInteractor.updateTracks(track, playlist.id)
+
+            _addResult.postValue(
+                AddToPlaylistResult.Added(playlist.name)
+            )
         }
     }
 
+    private fun updateState(block: PlayerState.() -> PlayerState) {
+        _state.value = _state.value?.block()
+    }
 }
