@@ -17,6 +17,7 @@ view-page2 = "1.0.0"
 room = "2.6.1"
 espressoCoreVersion = "3.7.0"
 ksp = "2.1.0-1.0.29"
+runtimeLivedata = "1.10.5"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
@@ -38,6 +39,7 @@ room-runtime = {module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = {module = "androidx.room:room-compiler", version.ref = "room" }
 room-ktx = {module = "androidx.room:room-ktx", version.ref = "room" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCoreVersion" }
+androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -59,6 +59,10 @@ dependencies {
 
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    implementation(libs.androidx.runtime.livedata)
+
+    // Coil
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Room
     implementation(libs.room.runtime)

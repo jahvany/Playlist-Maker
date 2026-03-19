@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -17,8 +18,10 @@ import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentSearchBinding
 import com.practicum.playlistmaker.player.ui.fragments.PlayerFragment
 import com.practicum.playlistmaker.search.domain.models.SearchState
+import com.practicum.playlistmaker.search.ui.compose.SearchScreen
 import com.practicum.playlistmaker.search.ui.view_model.TrackAdapter
 import com.practicum.playlistmaker.search.ui.view_model.SearchViewModel
+import com.practicum.playlistmaker.util.ui.PlaylistMakerTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.getValue
 
@@ -38,55 +41,58 @@ class SearchFragment : Fragment() {
     private lateinit var clearHistoryButton: Button
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentSearchBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-
-
-        inputEditText = binding.inputEditText
-        clearButton = binding.clearIcon
-        progressBar = binding.progressBar
-        erroreImage = binding.erroreImage
-        erroreText = binding.erroreText
-        updateButton = binding.update
-        textHistory = binding.textHistory
-        clearHistoryButton = binding.clearHistory
-
-        trackAdapter = TrackAdapter(emptyList()) { track ->
-            if (viewModel.clickDebounce()) {
-                viewModel.saveTrack(track)
-                findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
-                    PlayerFragment.createArgs(track))
+        return ComposeView(requireContext()).apply {
+            setContent {
+                PlaylistMakerTheme {
+                    SearchScreen(viewModel, findNavController())
+                }
             }
         }
-        binding.recyclerView.adapter = trackAdapter
-
-        viewModel.state.observe(viewLifecycleOwner) { render(it) }
-
-        clearButton.setOnClickListener {
-            inputEditText.text.clear()
-        }
-
-        inputEditText.doOnTextChanged { text, _, _, _ ->
-            clearButton.isVisible = !text.isNullOrEmpty()
-            viewModel.textForSave = text?.toString().orEmpty()
-            viewModel.searchDebounce(viewModel.textForSave)
-        }
-
-        clearHistoryButton.setOnClickListener {
-            viewModel.clearHistory()
-        }
-
-        updateButton.setOnClickListener {
-            viewModel.search(inputEditText.text.toString())
-        }
-
-        inputEditText.setText(viewModel.textForSave)
     }
+
+//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//        super.onViewCreated(view, savedInstanceState)
+
+//        inputEditText = binding.inputEditText
+//        clearButton = binding.clearIcon
+//        progressBar = binding.progressBar
+//        erroreImage = binding.erroreImage
+//        erroreText = binding.erroreText
+//        updateButton = binding.update
+//        textHistory = binding.textHistory
+//        clearHistoryButton = binding.clearHistory
+//
+//        trackAdapter = TrackAdapter(emptyList()) { track ->
+//            if (viewModel.clickDebounce()) {
+//                viewModel.saveTrack(track)
+//                findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
+//                    PlayerFragment.createArgs(track))
+//            }
+//        }
+//        binding.recyclerView.adapter = trackAdapter
+//
+//        viewModel.state.observe(viewLifecycleOwner) { render(it) }
+//
+//        clearButton.setOnClickListener {
+//            inputEditText.text.clear()
+//        }
+//
+//        inputEditText.doOnTextChanged { text, _, _, _ ->
+//            clearButton.isVisible = !text.isNullOrEmpty()
+//            viewModel.textForSave = text?.toString().orEmpty()
+//            viewModel.searchDebounce(viewModel.textForSave)
+//        }
+//
+//        clearHistoryButton.setOnClickListener {
+//            viewModel.clearHistory()
+//        }
+//
+//        updateButton.setOnClickListener {
+//            viewModel.search(inputEditText.text.toString())
+//        }
+//
+//        inputEditText.setText(viewModel.textForSave)
+//    }
 
     private fun render(state: SearchState) {
         progressBar.isVisible = state is SearchState.Loading

@@ -15,8 +15,10 @@
     <string name="searchNothing">Ничего не нашлось</string>
     <string name="searchError">Проблемы со связью\n\nЗагрузка не удалась. Проверьте подключение к интернету</string>
     <string name="update">Обновить</string>
+    <string name="clear">Очистить</string>
     <string name="clearHistory">Очистить историю</string>
     <string name="textHistory">Вы искали</string>
+    <string name="trackInfo">%s • %s</string>
     <string name="time">Длительность</string>
     <string name="album">Альбом</string>
     <string name="year">Год</string>
