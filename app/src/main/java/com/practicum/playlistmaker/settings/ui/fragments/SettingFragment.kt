@@ -1,16 +1,17 @@
 package com.practicum.playlistmaker.settings.ui.fragments
 
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.App
-import com.practicum.playlistmaker.databinding.FragmentSettingsBinding
+import com.practicum.playlistmaker.settings.ui.compose.SettingsScreen
 import com.practicum.playlistmaker.settings.ui.view_model.SettingsViewModel
 import com.practicum.playlistmaker.sharing.domain.model.EmailData
+import com.practicum.playlistmaker.util.ui.PlaylistMakerTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.getValue
 
@@ -18,29 +19,20 @@ class SettingFragment : Fragment() {
 
     private val viewModel: SettingsViewModel by viewModel()
 
-    private lateinit var binding: FragmentSettingsBinding
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentSettingsBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+        val isDarkThemeEnabled = viewModel.darkTheme.value ?: false
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-
-        binding.themeSwitch.isChecked = viewModel.darkTheme.value ?: false
-
-        binding.themeSwitch.setOnCheckedChangeListener { _, checked ->
-            viewModel.switchTheme(checked)
+        val onThemeToggle = { switcherChecked: Boolean ->
+            viewModel.switchTheme(switcherChecked)
+            (requireContext().applicationContext as App).switchTheme(switcherChecked)
         }
 
-        binding.shareButton.setOnClickListener {
+        val onShareClick = {
             val appLink = getString(R.string.messageAddress)
             viewModel.shareApp(appLink)
         }
 
-        binding.supportButton.setOnClickListener {
+        val onSupportClick = {
             val supportEmail = EmailData(
                 emails = arrayOf(getString(R.string.myAddress)),
                 subject = getString(R.string.supportSubject),
@@ -49,14 +41,23 @@ class SettingFragment : Fragment() {
             viewModel.openSupport(supportEmail)
         }
 
-        binding.agreementButton.setOnClickListener {
-                val termsLink = getString(R.string.webSite)
-                viewModel.openTerms(termsLink)
+        val onAgreementClick = {
+            val termsLink = getString(R.string.webSite)
+            viewModel.openTerms(termsLink)
         }
 
-        viewModel.darkTheme.observe(viewLifecycleOwner) { isDark ->
-            binding.themeSwitch.isChecked = isDark
-            (requireContext().applicationContext as App).switchTheme(isDark)
+        return ComposeView(requireContext()).apply {
+            setContent {
+                PlaylistMakerTheme {
+                    SettingsScreen(
+                        isDarkThemeEnabled,
+                        onThemeToggle,
+                        onShareClick,
+                        onSupportClick,
+                        onAgreementClick
+                    )
+                }
+            }
         }
     }
 }

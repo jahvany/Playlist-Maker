@@ -48,10 +48,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -103,29 +101,34 @@ fun SearchScreen(
     ) {
         // MaterialToolbar
         TopAppBar(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
             title = {
                 Text(
                     text = stringResource(R.string.search),
-                    fontSize = 22.sp,
-                    fontFamily =  FontFamily(Font(R.font.ys_display_medium)),
-                    fontWeight = FontWeight(500)
+                    style = MaterialTheme.typography.titleLarge
                 )
             },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.onPrimary,
                 titleContentColor = MaterialTheme.colorScheme.primary
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
+            )
         )
 
         // Search input with icons
-        SearchInput(searchDebounce, viewModel::search)
+        SearchInput(
+            searchDebounce = searchDebounce,
+            searchCall = viewModel::search
+        )
 
         // Content based on state
-        Content(searchState, onTrackClick, viewModel::clearHistory)
-
+        Content(
+            state = searchState,
+            onTrackClick = onTrackClick,
+            onClearHistoryClick = viewModel::clearHistory,
+            onUpdateButtonClick = { viewModel.search(viewModel.textForSave) }
+        )
     }
 }
 
@@ -147,10 +150,10 @@ fun SearchInput(
 
     // Background for EditText
     Card(
-        shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary
         )
@@ -160,12 +163,7 @@ fun SearchInput(
                 .fillMaxWidth(),
             state = searchInputState,
             placeholder = { Text(stringResource(R.string.search)) },
-            textStyle = TextStyle(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 16.sp,
-                fontFamily = FontFamily(Font(R.font.ys_display_regular)),
-                fontWeight = FontWeight(400)
-            ),
+            textStyle = MaterialTheme.typography.bodyMedium,
             inputTransformation = InputTransformation.maxLength(30),
             lineLimits = TextFieldLineLimits.SingleLine,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -174,25 +172,24 @@ fun SearchInput(
             },
             leadingIcon = {
                 Icon(
-                    painter = painterResource(R.drawable.lupa),
-                    contentDescription = null,
                     modifier = Modifier
-                        .padding(start = 14.dp, end = 4.dp)
-
+                        .padding(start = 14.dp, end = 4.dp),
+                    painter = painterResource(R.drawable.lupa),
+                    contentDescription = null
                 )
             },
             trailingIcon = {
                 if (searchInputState.text.isNotEmpty()) {
                     IconButton(
-                        onClick = { searchInputState.edit { replace(0, length, "") } },
                         modifier = Modifier
-                            .padding(end = 4.dp)
+                            .padding(end = 4.dp),
+                        onClick = { searchInputState.edit { replace(0, length, "") } }
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.clear),
-                            contentDescription = stringResource(R.string.clear),
                             modifier = Modifier
-                                .padding(vertical = 12.dp).padding(end = 14.dp)
+                                .padding(vertical = 12.dp).padding(end = 14.dp),
+                            painter = painterResource(R.drawable.clear),
+                            contentDescription = stringResource(R.string.clear)
                         )
                     }
                 }
@@ -206,7 +203,8 @@ fun SearchInput(
 fun Content(
     state: SearchState? = SearchState.Content(tracks = listOf(track1)),
     onTrackClick: (Track) -> Unit = {},
-    onClearHistory: () -> Unit = {}
+    onClearHistoryClick: () -> Unit = {},
+    onUpdateButtonClick: () -> Unit = {}
 ) {
     when (state) {
         is SearchState.Loading -> {
@@ -229,7 +227,7 @@ fun Content(
         }
 
         is SearchState.Error -> {
-            Error(R.drawable.error, R.string.searchError, true)
+            Error(R.drawable.error, R.string.searchError, true, onUpdateButtonClick)
         }
 
         is SearchState.History -> {
@@ -237,17 +235,17 @@ fun Content(
                 modifier = Modifier.fillMaxSize()
             ) {
                 Text(
-                    text = stringResource(R.string.textHistory),
-                    fontSize = 19.sp,
-                    fontFamily = FontFamily(Font(R.font.ys_display_medium)),
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp)
                         .background(MaterialTheme.colorScheme.onPrimary)
                         .wrapContentSize(Alignment.Center)
-                        .padding(bottom = 8.dp)
+                        .padding(bottom = 8.dp),
+                    text = stringResource(R.string.textHistory),
+                    fontSize = 19.sp,
+                    fontFamily = FontFamily(Font(R.font.ys_display_medium)),
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center
                 )
 
                 // RecyclerView equivalent
@@ -255,11 +253,11 @@ fun Content(
 
                 // Clear history
                 Button(
-                    onClick = { onClearHistory },
                     modifier = Modifier
                         .padding(vertical = 24.dp)
                         .height(36.dp)
                         .align(Alignment.CenterHorizontally),
+                    onClick = { onClearHistoryClick },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -286,36 +284,41 @@ fun Content(
 }
 
 @Composable
-fun Error(imageRes: Int, messageRes: Int, showUpdateButton: Boolean) {
+fun Error(
+    imageRes: Int,
+    messageRes: Int,
+    showUpdateButton: Boolean,
+    onUpdateButtonClick: () -> Unit = {}
+) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
+            modifier = Modifier
+                .padding(top = 86.dp, bottom = 16.dp),
             painter = painterResource(imageRes),
             contentDescription = null,
-            modifier = Modifier
-                .padding(top = 86.dp, bottom = 16.dp)
         )
 
         Text(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.onPrimary)
+                .padding(horizontal = 16.dp),
             text = stringResource(messageRes),
             fontSize = 19.sp,
             fontFamily = FontFamily(Font(R.font.ys_display_medium)),
             color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.onPrimary)
-                .padding(horizontal = 16.dp)
+            textAlign = TextAlign.Center
         )
 
         if (showUpdateButton) {
             Button(
-                onClick = {},//onUpdateClick,
                 modifier = Modifier
                     .padding(top = 24.dp)
                     .width(91.dp)
                     .height(36.dp),
+                onClick = { onUpdateButtonClick },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onPrimary
@@ -333,7 +336,10 @@ fun Error(imageRes: Int, messageRes: Int, showUpdateButton: Boolean) {
 }
 
 @Composable
-fun Tracks(tracks: List<Track>, onTrackClick: (Track) -> Unit) {
+fun Tracks(
+    tracks: List<Track>,
+    onTrackClick: (Track) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth(),
@@ -371,17 +377,17 @@ fun TrackItem(
         ) {
             // Cover Image
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(track.artworkUrl100)
-                    .crossfade(true) // Плавное появление картинки после загрузки
-                    .build(),
-                placeholder = painterResource(R.drawable.placeholder), // Плейсхолдер при загрузке
-                error = painterResource(R.drawable.placeholder), // Картинка при ошибке
-                contentDescription = null,
-                contentScale = ContentScale.Crop, // Масштабирование (аналог CenterCrop)
                 modifier = Modifier
                     .size(45.dp)
-                    .clip(RoundedCornerShape(cornerRadius.dp)) // Скругление углов
+                    .clip(RoundedCornerShape(cornerRadius.dp)),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(track.artworkUrl100)
+                    .crossfade(true)
+                    .build(),
+                placeholder = painterResource(R.drawable.placeholder),
+                error = painterResource(R.drawable.placeholder),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -392,20 +398,20 @@ fun TrackItem(
             ) {
                 // Track name
                 Text(
+                    modifier = Modifier
+                        .padding(end = 8.dp),
                     text = track.trackName,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.primary
-                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(end = 8.dp)
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 // Artist and time
                 Text(
                     text = stringResource(R.string.trackInfo, track.artistName, SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis)),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -413,10 +419,10 @@ fun TrackItem(
 
             // Forward arrow
             Image(
+                modifier = Modifier
+                    .size(24.dp),
                 painter = painterResource(id = R.drawable.arrowforward),
                 contentDescription = "Select track",
-                modifier = Modifier
-                    .size(24.dp)
             )
         }
     }
