@@ -25,8 +25,11 @@ class FavoriteTracksViewModel(
     private var clickJob: Job? = null
 
     private val _state = MutableLiveData<FavoriteState>()
-
     fun observeState(): LiveData<FavoriteState> = _state
+
+    init {
+        loadFavoriteTracks()
+    }
 
     fun clickDebounce(): Boolean {
         val current = isClickAllowed

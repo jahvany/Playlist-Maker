@@ -1,5 +1,6 @@
 package com.practicum.playlistmaker.media.ui.compose
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,9 +38,9 @@ import com.practicum.playlistmaker.media.domain.models.MediaPlaylistState
 import com.practicum.playlistmaker.media.domain.models.Playlist
 import com.practicum.playlistmaker.media.ui.fragments.FragmentPlaylist
 import com.practicum.playlistmaker.media.ui.view_model.MediaPlaylistsViewModel
-import com.practicum.playlistmaker.search.ui.compose.RegularProgressBar
 import com.practicum.playlistmaker.search.ui.compose.Error
-import com.practicum.playlistmaker.search.ui.compose.RegularButton
+import com.practicum.playlistmaker.util.ui.RegularButton
+import com.practicum.playlistmaker.util.ui.RegularProgressBar
 
 @Composable
 fun PlaylistsTab(
@@ -56,37 +57,48 @@ fun PlaylistsTab(
     }
 
     val onNewPlaylistButtonClick = {
-        navController.navigate(R.id.action_mediaFragment_to_fragmentNewPlaylist)
+        navController.navigate(R.id.action_mediaFragment_to_fragmentNewPlaylist2)
     }
 
-    // New playlist button
-    RegularButton(
-        label = stringResource(R.string.newPlaylist),
-        onClick = onNewPlaylistButtonClick
-    )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.onPrimary),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-    when (state) {
-        is MediaPlaylistState.Loading -> {
-            RegularProgressBar()
-        }
+        // New playlist button
+        RegularButton(
+            label = stringResource(R.string.newPlaylist),
+            onClick = onNewPlaylistButtonClick,
+            modifier = Modifier
+                .padding(vertical = 16.dp)
+                .height(36.dp)
+        )
 
-        is MediaPlaylistState.Empty  -> {
-            Error(
-                imageRes = R.drawable.nothing,
-                messageRes = R.string.nothingPlaylists,
-                showUpdateButton = false
-            )
-        }
+        when (state) {
+            is MediaPlaylistState.Loading -> {
+                RegularProgressBar()
+            }
 
-        is MediaPlaylistState.Content -> {
-            PlaylistsGrid(
-                playlists = (state as MediaPlaylistState.Content).playlists,
-                onItemClick = onPlaylistClick
-            )
-        }
+            is MediaPlaylistState.Empty -> {
+                Error(
+                    imageRes = R.drawable.nothing,
+                    messageRes = R.string.nothingPlaylists,
+                    showUpdateButton = false
+                )
+            }
 
-        else -> {
+            is MediaPlaylistState.Content -> {
+                PlaylistsGrid(
+                    playlists = (state as MediaPlaylistState.Content).playlists,
+                    onItemClick = onPlaylistClick
+                )
+            }
 
+            else -> {
+
+            }
         }
     }
 }

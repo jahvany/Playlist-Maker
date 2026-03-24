@@ -3,7 +3,6 @@ package com.practicum.playlistmaker.search.ui.compose
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,19 +20,13 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,7 +35,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -67,13 +58,14 @@ import com.practicum.playlistmaker.search.ui.view_model.SearchViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.math.roundToInt
 import androidx.compose.ui.platform.LocalResources
+import com.practicum.playlistmaker.util.ui.CommonTopBar
+import com.practicum.playlistmaker.util.ui.RegularButton
+import com.practicum.playlistmaker.util.ui.RegularProgressBar
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 val track1 = Track(trackName="Perfect", artistName="Ed Sheeran", trackTimeMillis=263400, artworkUrl100="https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/15/e6/e8/15e6e8a4-4190-6a8b-86c3-ab4a51b88288/190295851286.jpg/100x100bb.jpg", trackId=1193701400, collectionName="÷ (Deluxe)", releaseDate="2017-03-03T08:00:00Z", primaryGenreName="Pop", country="USA", previewUrl="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c7/ba/bc/c7babc66-f598-aaa6-bcf6-307281795817/mzaf_16337361235117168274.plus.aac.p.m4a", isFavorite=false)
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel,
@@ -99,22 +91,7 @@ fun SearchScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onPrimary)
     ) {
-        // MaterialToolbar
-        TopAppBar(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            title = {
-                Text(
-                    text = stringResource(R.string.search),
-                    style = MaterialTheme.typography.titleLarge
-                )
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.onPrimary,
-                titleContentColor = MaterialTheme.colorScheme.primary
-            )
-        )
+        CommonTopBar(label = stringResource(R.string.search))
 
         // Search input with icons
         SearchInput(
@@ -228,8 +205,7 @@ fun Content(
                         .fillMaxWidth()
                         .height(52.dp)
                         .background(MaterialTheme.colorScheme.onPrimary)
-                        .wrapContentSize(Alignment.Center)
-                        .padding(bottom = 8.dp),
+                        .padding(top = 8.dp),
                     text = stringResource(R.string.textHistory),
                     fontSize = 19.sp,
                     fontFamily = FontFamily(Font(R.font.ys_display_medium)),
@@ -241,24 +217,14 @@ fun Content(
                 Tracks(state.tracks, onTrackClick)
 
                 // Clear history
-                Button(
+                RegularButton(
+                    label = stringResource(R.string.clearHistory),
+                    onClick = onClearHistoryClick,
                     modifier = Modifier
                         .padding(vertical = 24.dp)
                         .height(36.dp)
-                        .align(Alignment.CenterHorizontally),
-                    onClick = { onClearHistoryClick },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.clearHistory),
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.ys_display_medium)),
-                    )
-                }
+                        .align(Alignment.CenterHorizontally)
+                )
             }
         }
 
@@ -269,45 +235,6 @@ fun Content(
         else -> {
 
         }
-    }
-}
-
-@Composable
-fun RegularProgressBar() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 124.dp)
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier
-                .size(44.dp)
-                .align(alignment = Alignment.TopCenter),
-            color = Color.Blue
-        )
-    }
-}
-
-@Composable
-fun RegularButton(
-    label: String = "",
-    onClick: () -> Unit = {}
-) {
-    Button(
-        modifier = Modifier
-            .wrapContentSize(),
-        onClick = { onClick },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onPrimary
-        )
     }
 }
 
@@ -356,8 +283,7 @@ fun Tracks(
 ) {
     LazyColumn(
         modifier = Modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+            .fillMaxWidth()
     ) {
          items(
              count = tracks.size,
