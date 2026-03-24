@@ -208,18 +208,7 @@ fun Content(
 ) {
     when (state) {
         is SearchState.Loading -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 124.dp)
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .align(alignment = Alignment.TopCenter),
-                    color = Color.Blue
-                )
-            }
+            RegularProgressBar()
         }
 
         is SearchState.NothingFound -> {
@@ -284,6 +273,45 @@ fun Content(
 }
 
 @Composable
+fun RegularProgressBar() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 124.dp)
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier
+                .size(44.dp)
+                .align(alignment = Alignment.TopCenter),
+            color = Color.Blue
+        )
+    }
+}
+
+@Composable
+fun RegularButton(
+    label: String = "",
+    onClick: () -> Unit = {}
+) {
+    Button(
+        modifier = Modifier
+            .wrapContentSize(),
+        onClick = { onClick },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
+@Composable
 fun Error(
     imageRes: Int,
     messageRes: Int,
@@ -313,24 +341,10 @@ fun Error(
         )
 
         if (showUpdateButton) {
-            Button(
-                modifier = Modifier
-                    .padding(top = 24.dp)
-                    .width(91.dp)
-                    .height(36.dp),
-                onClick = { onUpdateButtonClick },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.update),
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily(Font(R.font.ys_display_medium)),
-                )
-            }
+            RegularButton(
+                label = stringResource(R.string.update),
+                onClick = onUpdateButtonClick
+            )
         }
     }
 }
