@@ -3,8 +3,10 @@ package com.practicum.playlistmaker.search.ui.compose
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,38 +17,36 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -58,13 +58,12 @@ import com.practicum.playlistmaker.search.ui.view_model.SearchViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.math.roundToInt
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.text.input.VisualTransformation
 import com.practicum.playlistmaker.util.ui.CommonTopBar
 import com.practicum.playlistmaker.util.ui.RegularButton
 import com.practicum.playlistmaker.util.ui.RegularProgressBar
 import java.text.SimpleDateFormat
 import java.util.Locale
-
-val track1 = Track(trackName="Perfect", artistName="Ed Sheeran", trackTimeMillis=263400, artworkUrl100="https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/15/e6/e8/15e6e8a4-4190-6a8b-86c3-ab4a51b88288/190295851286.jpg/100x100bb.jpg", trackId=1193701400, collectionName="÷ (Deluxe)", releaseDate="2017-03-03T08:00:00Z", primaryGenreName="Pop", country="USA", previewUrl="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c7/ba/bc/c7babc66-f598-aaa6-bcf6-307281795817/mzaf_16337361235117168274.plus.aac.p.m4a", isFavorite=false)
 
 @Composable
 fun SearchScreen(
@@ -117,6 +116,7 @@ fun SearchInput(
 ) {
     val searchInputState = rememberTextFieldState()
 
+    // On text changed
     LaunchedEffect(searchInputState) {
         snapshotFlow { searchInputState.text }
             .distinctUntilChanged()
@@ -125,60 +125,78 @@ fun SearchInput(
             }
     }
 
-    // Background for EditText
-    Card(
+    BasicTextField(
+        state = searchInputState,
         modifier = Modifier
             .fillMaxWidth()
+            .height(36.dp)
             .padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        )
-    ) {
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth(),
-            state = searchInputState,
-            placeholder = { Text(stringResource(R.string.search)) },
-            textStyle = MaterialTheme.typography.bodyMedium,
-            inputTransformation = InputTransformation.maxLength(30),
-            lineLimits = TextFieldLineLimits.SingleLine,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            onKeyboardAction = {
-                searchCall(searchInputState.text.toString())
-            },
-            leadingIcon = {
-                Icon(
-                    modifier = Modifier
-                        .padding(start = 14.dp, end = 4.dp),
-                    painter = painterResource(R.drawable.lupa),
-                    contentDescription = null
-                )
-            },
-            trailingIcon = {
-                if (searchInputState.text.isNotEmpty()) {
-                    IconButton(
-                        modifier = Modifier
-                            .padding(end = 4.dp),
-                        onClick = { searchInputState.edit { replace(0, length, "") } }
-                    ) {
-                        Icon(
+        textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+        lineLimits = TextFieldLineLimits.SingleLine,
+        inputTransformation = InputTransformation.maxLength(30),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        onKeyboardAction = {
+            searchCall(searchInputState.text.toString())
+        },
+        decorator = { innerTextField ->
+            TextFieldDefaults.DecorationBox(
+                value = searchInputState.text.toString(),
+                innerTextField = innerTextField,
+                enabled = true,
+                singleLine = true,
+                visualTransformation = VisualTransformation.None,
+                interactionSource = remember { MutableInteractionSource() },
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.search),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(R.drawable.lupa),
+                        tint = MaterialTheme.colorScheme.primaryContainer,
+                        contentDescription = null
+                    )
+                },
+                trailingIcon = {
+                    if (searchInputState.text.isNotEmpty()) {
+                        IconButton(
                             modifier = Modifier
-                                .padding(vertical = 12.dp).padding(end = 14.dp),
-                            painter = painterResource(R.drawable.clear),
-                            contentDescription = stringResource(R.string.clear)
-                        )
+                                .padding(vertical = 12.dp),
+                            onClick = { searchInputState.edit { replace(0, length, "") } }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.clear),
+                                tint = MaterialTheme.colorScheme.primaryContainer,
+                                contentDescription = stringResource(R.string.clear)
+                            )
+                        }
                     }
-                }
-            }
-        )
-    }
+                },
+                container = {
+                    Box(
+                        Modifier
+                            .background(
+                                MaterialTheme.colorScheme.secondaryContainer,
+                                RoundedCornerShape(8.dp)
+                            )
+                    )
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                contentPadding = PaddingValues(vertical = 0.dp)
+            )
+        }
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun Content(
-    state: SearchState? = SearchState.Content(tracks = listOf(track1)),
+    state: SearchState? = SearchState.Error,
     onTrackClick: (Track) -> Unit = {},
     onClearHistoryClick: () -> Unit = {},
     onUpdateButtonClick: () -> Unit = {}
@@ -189,11 +207,23 @@ fun Content(
         }
 
         is SearchState.NothingFound -> {
-            Error(R.drawable.nothing, R.string.searchNothing, false)
+            Error(R.drawable.nothing, R.string.searchNothing)
         }
 
         is SearchState.Error -> {
-            Error(R.drawable.error, R.string.searchError, true, onUpdateButtonClick)
+            Column {
+                Error(R.drawable.error, R.string.searchError)
+
+                // Update button
+                RegularButton(
+                    label = stringResource(R.string.update),
+                    onClick = onUpdateButtonClick,
+                    modifier = Modifier
+                        .padding(vertical = 24.dp)
+                        .height(36.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
         }
 
         is SearchState.History -> {
@@ -205,10 +235,9 @@ fun Content(
                         .fillMaxWidth()
                         .height(52.dp)
                         .background(MaterialTheme.colorScheme.onPrimary)
-                        .padding(top = 8.dp),
+                        .padding(top = 24.dp),
                     text = stringResource(R.string.textHistory),
-                    fontSize = 19.sp,
-                    fontFamily = FontFamily(Font(R.font.ys_display_medium)),
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
@@ -229,6 +258,8 @@ fun Content(
         }
 
         is SearchState.Content -> {
+            Spacer(modifier = Modifier.height(12.dp))
+
             Tracks(state.tracks, onTrackClick)
         }
 
@@ -241,9 +272,7 @@ fun Content(
 @Composable
 fun Error(
     imageRes: Int,
-    messageRes: Int,
-    showUpdateButton: Boolean,
-    onUpdateButtonClick: () -> Unit = {}
+    messageRes: Int
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -261,18 +290,9 @@ fun Error(
                 .background(MaterialTheme.colorScheme.onPrimary)
                 .padding(horizontal = 16.dp),
             text = stringResource(messageRes),
-            fontSize = 19.sp,
-            fontFamily = FontFamily(Font(R.font.ys_display_medium)),
-            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.primary),
             textAlign = TextAlign.Center
         )
-
-        if (showUpdateButton) {
-            RegularButton(
-                label = stringResource(R.string.update),
-                onClick = onUpdateButtonClick
-            )
-        }
     }
 }
 

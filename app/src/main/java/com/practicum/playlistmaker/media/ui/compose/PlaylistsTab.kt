@@ -1,17 +1,18 @@
 package com.practicum.playlistmaker.media.ui.compose
 
+import android.os.Environment
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,6 +42,7 @@ import com.practicum.playlistmaker.media.ui.view_model.MediaPlaylistsViewModel
 import com.practicum.playlistmaker.search.ui.compose.Error
 import com.practicum.playlistmaker.util.ui.RegularButton
 import com.practicum.playlistmaker.util.ui.RegularProgressBar
+import java.io.File
 
 @Composable
 fun PlaylistsTab(
@@ -84,8 +86,7 @@ fun PlaylistsTab(
             is MediaPlaylistState.Empty -> {
                 Error(
                     imageRes = R.drawable.nothing,
-                    messageRes = R.string.nothingPlaylists,
-                    showUpdateButton = false
+                    messageRes = R.string.nothingPlaylists
                 )
             }
 
@@ -110,8 +111,8 @@ fun PlaylistsGrid(
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxSize()
     ) {
@@ -126,21 +127,23 @@ fun PlaylistGridItem(
     playlist: Playlist,
     onClick: (Playlist) -> Unit
 ) {
+
+    val filePath = File(LocalContext.current.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
+    val file = File(filePath, playlist.cover)
+
     Column(
         modifier = Modifier
-            .width(160.dp)
-            .height(196.dp)
-            .padding(start = 4.dp, end = 4.dp)
+            .fillMaxWidth()
+            .wrapContentHeight()
             .clickable { onClick(playlist) },
-        horizontalAlignment = Alignment.Start
     ) {
         // Cover Image
         AsyncImage(
             modifier = Modifier
-                .size(160.dp)
+                .aspectRatio(1f)
                 .clip(RoundedCornerShape(8.dp)),
             model = ImageRequest.Builder(LocalContext.current)
-                .data(playlist.cover)
+                .data(file)
                 .crossfade(true)
                 .build(),
             placeholder = painterResource(R.drawable.placeholder),

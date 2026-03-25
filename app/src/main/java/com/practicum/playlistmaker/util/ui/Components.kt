@@ -17,7 +17,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,7 +52,7 @@ fun RegularProgressBar() {
             modifier = Modifier
                 .size(44.dp)
                 .align(alignment = Alignment.TopCenter),
-            color = Color.Blue
+            color = Blue
         )
     }
 }
@@ -66,7 +65,7 @@ fun RegularButton(
 ) {
     Button(
         modifier = modifier,
-        onClick = { onClick },
+        onClick = onClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary

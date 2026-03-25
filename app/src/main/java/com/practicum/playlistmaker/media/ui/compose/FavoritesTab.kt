@@ -50,8 +50,7 @@ fun FavoritesTab(
             is FavoriteState.Empty -> {
                 Error(
                     imageRes = R.drawable.nothing,
-                    messageRes = R.string.nothingTracks,
-                    showUpdateButton = false
+                    messageRes = R.string.nothingTracks
                 )
             }
 

@@ -18,11 +18,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.util.ui.Blue
 import com.practicum.playlistmaker.util.ui.CommonTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,7 +53,6 @@ fun SettingsScreen(
             isSwitch = true,
             isChecked = isDarkThemeEnabled,
             onCheckedChange = onThemeToggle,
-            //modifier = Modifier.clickable(enabled = false) { } // Disable click on the whole item
         )
 
         // Share Button
@@ -78,7 +81,7 @@ fun SettingsScreen(
 @Composable
 fun SettingsItem(
     text: String,
-    painter: androidx.compose.ui.graphics.painter.Painter? = null,
+    painter: Painter? = null,
     isSwitch: Boolean = false,
     isChecked: Boolean = false,
     onCheckedChange: ((Boolean) -> Unit)? = null,
@@ -105,13 +108,15 @@ fun SettingsItem(
         when {
             isSwitch && onCheckedChange != null -> {
                 Switch(
+                    modifier = Modifier.scale(0.8f),
                     checked = isChecked,
                     onCheckedChange = onCheckedChange,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.primary,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                        uncheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                        checkedThumbColor = Blue,
+                        checkedTrackColor = Blue.copy(alpha = 0.5f),
+                        uncheckedThumbColor = MaterialTheme.colorScheme.onSecondary,
+                        uncheckedTrackColor = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.5f),
+                        uncheckedBorderColor = Color.Transparent
                     )
                 )
             }
@@ -119,7 +124,7 @@ fun SettingsItem(
                 Icon(
                     painter = painter,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.size(24.dp)
                 )
             }
