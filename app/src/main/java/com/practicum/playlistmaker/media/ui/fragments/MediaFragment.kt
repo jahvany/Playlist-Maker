@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import com.practicum.playlistmaker.media.ui.compose.MediaScreen
 import com.practicum.playlistmaker.util.ui.PlaylistMakerTheme
@@ -17,6 +18,7 @@ class MediaFragment: Fragment() {
                     MediaScreen()
                 }
             }
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         }
     }
 }

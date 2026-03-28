@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.findNavController
 import com.practicum.playlistmaker.R
@@ -27,7 +28,7 @@ import org.koin.androidx.compose.koinViewModel
 fun MediaScreen() {
     val navController = LocalView.current.findNavController()
     val scope = rememberCoroutineScope()
-    val tabs = listOf(stringResource(R.string.mediaTabTracks), stringResource(R.string.mediaTabPlaylist))
+    val tabs = stringArrayResource(R.array.mediaTabs)
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val selectedTabIndex = pagerState.currentPage
 

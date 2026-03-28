@@ -54,4 +54,9 @@
     <string name="delete_message">Хотите удалить плейлист «%1$s»?</string>
     <string name="zeroSharing">В этом плейлисте нет списка треков, которым можно поделиться</string>
     <string name="noNotification">Разрешите уведомления для работы в фоне</string>
+
+    <string-array name="mediaTabs">
+        <item>Избранные треки</item>
+        <item>Плейлисты</item>
+    </string-array>
 </resources>

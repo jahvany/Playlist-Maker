@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -307,7 +308,8 @@ fun Tracks(
     ) {
          items(
              count = tracks.size,
-             key = { index -> tracks[index].trackId }
+             key = { index -> tracks[index].trackId },
+             contentType = { index -> tracks[index]::class }
          ) { index ->
              TrackItem(tracks[index], onTrackClick)
          }
@@ -319,8 +321,6 @@ fun TrackItem(
     track: Track,
     onTrackClick: (Track) -> Unit
 ) {
-    val cornerRadius = (2 * LocalResources.current.displayMetrics.density).roundToInt()
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -329,61 +329,68 @@ fun TrackItem(
             .padding(start = 12.dp, end = 13.dp)
             .clickable { onTrackClick(track) }
     ) {
-        Row(
+        TrackItemInfo(track)
+    }
+}
+
+@Composable
+fun TrackItemInfo(track: Track) {
+    val cornerRadius = (2 * LocalResources.current.displayMetrics.density).roundToInt()
+
+    Row(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        // Cover Image
+        AsyncImage(
             modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.CenterStart),
-            verticalAlignment = Alignment.CenterVertically
+                .size(45.dp)
+                .clip(RoundedCornerShape(cornerRadius.dp)),
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(track.artworkUrl100)
+                .crossfade(true)
+                .build(),
+            placeholder = painterResource(R.drawable.placeholder),
+            error = painterResource(R.drawable.placeholder),
+            contentDescription = null,
+            contentScale = ContentScale.Crop
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // Track info column
+        Column(
+            modifier = Modifier.weight(1f)
         ) {
-            // Cover Image
-            AsyncImage(
+            // Track name
+            Text(
                 modifier = Modifier
-                    .size(45.dp)
-                    .clip(RoundedCornerShape(cornerRadius.dp)),
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(track.artworkUrl100)
-                    .crossfade(true)
-                    .build(),
-                placeholder = painterResource(R.drawable.placeholder),
-                error = painterResource(R.drawable.placeholder),
-                contentDescription = null,
-                contentScale = ContentScale.Crop
+                    .padding(end = 8.dp),
+                text = track.trackName,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // Track info column
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                // Track name
-                Text(
-                    modifier = Modifier
-                        .padding(end = 8.dp),
-                    text = track.trackName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                // Artist and time
-                Text(
-                    text = stringResource(R.string.trackInfo, track.artistName, SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis)),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            // Forward arrow
-            Image(
-                modifier = Modifier
-                    .size(24.dp),
-                painter = painterResource(id = R.drawable.arrowforward),
-                contentDescription = "Select track",
+            // Artist and time
+            Text(
+                text = stringResource(R.string.trackInfo, track.artistName, SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis)),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
+
+        // Forward arrow
+        Image(
+            modifier = Modifier
+                .size(24.dp),
+            painter = painterResource(id = R.drawable.arrowforward),
+            contentDescription = "Select track",
+        )
     }
 }

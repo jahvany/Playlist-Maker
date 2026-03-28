@@ -116,7 +116,11 @@ fun PlaylistsGrid(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(playlists.size) { index ->
+        items(
+            count = playlists.size,
+            key = { index -> playlists[index].id },
+            contentType = { index -> playlists[index]::class }
+        ) { index ->
             PlaylistGridItem(playlists[index], onItemClick)
         }
     }

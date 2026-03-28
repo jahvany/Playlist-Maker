@@ -26,7 +26,7 @@ fun FavoritesTab(
     viewModel: FavoriteTracksViewModel,
     navController: NavController
 ) {
-    val state by viewModel.observeState().observeAsState()
+    val uiState by viewModel.observeState().observeAsState()
 
     val onTrackClick = { track: Track ->
         if (viewModel.clickDebounce()) {
@@ -42,7 +42,7 @@ fun FavoritesTab(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onPrimary)
     ) {
-        when (state) {
+        when (val state = uiState) {
             is FavoriteState.Loading -> {
                 RegularProgressBar()
             }
@@ -57,8 +57,7 @@ fun FavoritesTab(
             is FavoriteState.Content -> {
                 Spacer(modifier = Modifier.height(16.dp))
                 Tracks(
-                    // Smart cast to 'FavoriteState.Content' is impossible, because 'state' is a delegated property
-                    tracks = (state as FavoriteState.Content).tracks,
+                    tracks = state.tracks,
                     onTrackClick = onTrackClick
                 )
             }

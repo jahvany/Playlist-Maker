@@ -100,7 +100,7 @@ class PlayerViewModel(
                 isFavorite = !track.isFavorite
             )
 
-            updateState { copy(isFavorite = track.isFavorite) }
+            updateState { copy(isFavorite = currentTrack!!.isFavorite) }
         }
     }
 
