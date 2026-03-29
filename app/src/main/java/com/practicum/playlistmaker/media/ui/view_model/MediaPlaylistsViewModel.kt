@@ -16,12 +16,15 @@ class MediaPlaylistsViewModel(
 ) : ViewModel() {
 
     private val _state = MutableLiveData<MediaPlaylistState>()
-
     fun observeState(): LiveData<MediaPlaylistState> = _state
 
     private var isClickAllowed = true
 
     private var clickJob: Job? = null
+
+    init {
+        getPlaylists()
+    }
 
     private fun renderState(state: MediaPlaylistState) {
         _state.postValue(state)
